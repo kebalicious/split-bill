@@ -1,7 +1,11 @@
 {
+  "subtitle": "Kongsi bil dengan mudah dan pantas",
   "title": "Butiran Bil",
   "description": "Pilih cara untuk masukkan butiran bil anda.",
-  "upload": "Muat Naik Bil/Resit",
-  "manual": "Masukkan Manual",
-  "summary": "Ringkasan"
+  "upload": "Muat Naik",
+  "manual": "Masukkan Secara Manual",
+  "summary": "Ringkasan",
+  "addItem": "Tambah Item",
+  "or": "Atau",
+  "uploadReceipt": "Muat naik resit/bil"
 }

@@ -1,76 +1,286 @@
 <template>
   <div>
-    <div class="bill-details">
-      <h3 class="mb-2 font-bold text-lg">Bill Items:</h3>
-      <div class="bg-white dark:bg-card-dark rounded-xl overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-gray-50 dark:bg-gray-800">
-              <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 text-left"><span class="inline-flex items-center gap-1">📝 Item</span></th>
-              <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 text-left"><span class="inline-flex items-center gap-1">💸 Price</span></th>
-              <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 text-left"><span class="inline-flex items-center gap-1">🔢 Qty</span></th>
-              <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 text-left"><span class="inline-flex items-center gap-1">Σ Total</span></th>
-              <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200 text-center">➕</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Input row -->
-            <tr>
-              <td class="px-4 py-2 align-middle">
-                <input type="text" v-model="newItem.name" placeholder="Item name" class="px-2 py-1 border rounded w-full" @keyup.enter="addItem" />
-              </td>
-              <td class="px-4 py-2 align-middle">
-                <input type="number" v-model.number="newItem.price" placeholder="Price" min="0" step="0.01" class="px-2 py-1 border rounded w-full" @keyup.enter="addItem" />
-              </td>
-              <td class="px-4 py-2 align-middle">
-                <input type="number" v-model.number="newItem.quantity" placeholder="Qty" min="1" step="1" class="px-2 py-1 border rounded w-full" @keyup.enter="addItem" />
-              </td>
-              <td class="px-4 py-2 text-gray-400 align-middle">-</td>
-              <td class="px-4 py-2 text-center align-middle">
-                <button @click="addItem" :disabled="!isValidItem" class="bg-primary-light dark:bg-primary-dark disabled:opacity-50 p-2 rounded-full text-white" title="Add">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="space-y-4">
+      <div class="bg-white shadow p-4 rounded-xl">
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Add your bill details</h2>
+        <div class="my-4 border-t border-dashed"></div>
+        <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 text-xs uppercase tracking-wide">
+          <div class="w-12">Qty.</div>
+          <div class="flex-1">Item(s)</div>
+          <div class="w-20 text-right">Price</div>
+        </div>
+        <div v-for="(item, index) in items" :key="index"
+          class="flex items-center py-4 border-b last:border-b-0 text-gray-900 text-sm">
+          <div class="w-12">{{ item.quantity }}</div>
+          <div class="flex-1">{{ item.name }}</div>
+          <div class="w-20 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
+        </div>
+        <!-- Add Item Row (Mobile, styled like screenshot) -->
+        <div
+          class="flex justify-center items-center gap-2 bg-primary-light active:bg-primary-light/90 dark:active:bg-primary-dark/90 dark:bg-primary-dark my-8 p-3 border border-primary-light dark:border-primary-dark rounded-xl font-medium text-card-light dark:text-card-dark text-sm transition cursor-pointer"
+          @click="openAddModal">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" fill="none" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
+          </svg>
+          <span class="font-medium">Add Item</span>
+        </div>
+        <div class="my-4 border-t border-dashed"></div>
+        <div class="flex flex-col gap-1 text-sm">
+          <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>{{
+            formatPrice(items.reduce((sum, item) => sum + item.price * item.quantity, 0))}}</span></div>
+          <div class="my-4 border-t border-dashed"></div>
+          <div class="flex flex-col space-y-4">
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between items-center"><span class="text-gray-500">Is service tax
+                  included?</span>
+                <label class="inline-flex relative items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" v-model="serviceTaxIncluded">
+                  <div
+                    class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                  </div>
+                </label>
+              </div>
+              <div v-if="serviceTaxIncluded"
+                class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
+                <label for="serviceTax" class="block w-1/2 font-medium cursor-pointer">Service Tax</label>
+                <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="999.99" step="0.01"
+                  class="outline-none w-1/2 text-end" placeholder="0.00"
+                  @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between items-center"><span class="text-gray-500">Is delivery fee
+                  included?</span>
+                <label class="inline-flex relative items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" v-model="deliveryFeeIncluded">
+                  <div
+                    class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                  </div>
+                </label>
+              </div>
+              <div v-if="deliveryFeeIncluded"
+                class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
+                <label for="deliveryFee" class="block w-1/2 font-medium cursor-pointer">Delivery Fee</label>
+                <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99" step="0.01"
+                  class="outline-none w-1/2 text-end" placeholder="0.00"
+                  @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+              </div>
+            </div>
+          </div>
+          <div class="my-4 border-t border-dashed"></div>
+          <div class="flex justify-between font-bold text-base"><span>Grand Total</span><span>{{
+            formatPrice(grandTotal) }}</span></div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow p-4 rounded-xl">
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Choose how you would like to split the
+          bill</h2>
+        <div class="my-4 border-t border-dashed"></div>
+        <div class="flex flex-col gap-4 text-sm">
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500">No. of people</span>
+              <div class="flex items-center gap-2">
+                <button @click="decrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                  </svg>
+                </button>
+                <span class="font-medium">{{ numberOfPeople }}</span>
+                <button @click="incrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </button>
-              </td>
-            </tr>
-            <!-- Data rows -->
-            <tr v-if="items.length === 0">
-              <td colspan="5" class="px-4 py-6 text-gray-400 dark:text-gray-500 text-center">No items yet</td>
-            </tr>
-            <tr v-for="(item, index) in items" :key="index" class="group hover:bg-primary-light/10 dark:hover:bg-primary-dark/10 border-b last:border-b-0 transition-all">
-              <td class="px-4 py-3 align-middle">{{ item.name }}</td>
-              <td class="px-4 py-3 align-middle">{{ formatPrice(item.price) }}</td>
-              <td class="px-4 py-3 align-middle">{{ item.quantity }}</td>
-              <td class="px-4 py-3 align-middle">{{ formatPrice(item.price * item.quantity) }}</td>
-              <td class="px-4 py-3 text-center align-middle">
-                <button @click="removeItem(index)" class="hover:bg-red-100 dark:hover:bg-red-900 p-2 rounded-full transition-colors" title="Delete">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500 group-hover:text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500">Split bill equally?</span>
+              <label class="inline-flex relative items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" v-model="splitEqually">
+                <div
+                  class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                </div>
+              </label>
+            </div>
+
+            <div v-if="!splitEqually" class="flex flex-col gap-3">
+              <div v-for="(person, index) in people" :key="index" class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-500">Person {{ index + 1 }}</span>
+                  <div class="flex items-center gap-2">
+                    <button @click="removePerson(index)"
+                      class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div v-for="item in items" :key="item.name" class="flex items-center gap-2">
+                    <input type="checkbox" :id="`${index}-${item.name}`" v-model="person.items" :value="item.name"
+                      class="w-4 h-4">
+                    <label :for="`${index}-${item.name}`" class="text-sm">{{ item.name }}</label>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 text-sm">Status:</span>
+                  <div v-if="isPersonComplete(index)" class="text-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div v-else class="text-yellow-500 animate-spin">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow p-4 rounded-xl">
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Summary</h2>
+        <div class="my-4 border-t border-dashed"></div>
+        <div class="flex flex-col gap-4 text-sm">
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500">No. of people</span>
+              <div class="flex items-center gap-2">
+                <button @click="decrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                   </svg>
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <span class="font-medium">{{ numberOfPeople }}</span>
+                <button @click="incrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500">Split bill equally?</span>
+              <label class="inline-flex relative items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" v-model="splitEqually">
+                <div
+                  class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                </div>
+              </label>
+            </div>
+
+            <div v-if="!splitEqually" class="flex flex-col gap-3">
+              <div v-for="(person, index) in people" :key="index" class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-500">Person {{ index + 1 }}</span>
+                  <div class="flex items-center gap-2">
+                    <button @click="removePerson(index)"
+                      class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div v-for="item in items" :key="item.name" class="flex items-center gap-2">
+                    <input type="checkbox" :id="`${index}-${item.name}`" v-model="person.items" :value="item.name"
+                      class="w-4 h-4">
+                    <label :for="`${index}-${item.name}`" class="text-sm">{{ item.name }}</label>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-500 text-sm">Status:</span>
+                  <div v-if="isPersonComplete(index)" class="text-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div v-else class="text-yellow-500 animate-spin">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="flex flex-col gap-4 mt-4">
-      <div class="flex items-center gap-4">
-        <label class="w-32" for="serviceTax">Service Tax (RM):</label>
-        <input type="number" id="serviceTax" v-model.number="serviceTaxInput" min="0" step="0.01" class="flex-1 px-2 py-1 border rounded" />
-      </div>
-      <div class="flex items-center gap-4">
-        <label class="w-32" for="deliveryFee">Delivery Fee (RM):</label>
-        <input type="number" id="deliveryFee" v-model.number="deliveryFeeInput" min="0" step="0.01" class="flex-1 px-2 py-1 border rounded" />
+    <!-- Add Item Modal -->
+    <div v-if="showAddModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
+      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-sm">
+        <div class="flex justify-between items-center mb-8">
+          <h3 class="font-bold text-lg">Add Item</h3>
+          <button @click="closeAddModal" class="text-gray-400 hover:text-red-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="flex flex-col gap-3">
+          <div>
+            <input v-model="modalItem.name" type="text" class="p-3 border rounded-lg focus:outline-blue-200 w-full"
+              placeholder="Item name" />
+          </div>
+          <div
+            class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
+            <label for="modalPrice" class="block w-1/2 font-medium cursor-pointer">Price</label>
+            <input id="modalPrice" v-model="modalItem.price" type="number" class="outline-none w-1/2 text-end"
+              placeholder="0.00" />
+          </div>
+          <div
+            class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
+            <label for="modalQuantity" class="block w-1/2 font-medium cursor-pointer">Quantity</label>
+            <input id="modalQuantity" v-model.number="modalItem.quantity" type="number" min="1" step="1"
+              class="outline-none w-1/2 text-end" placeholder="1" />
+          </div>
+        </div>
+        <button @click="saveModalItem" :disabled="!(isValidModalItem)"
+          class="flex justify-center items-center gap-2 bg-primary-light dark:bg-primary-dark disabled:opacity-50 mt-6 p-3 rounded-xl w-full font-bold text-white text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" fill="none" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
+          </svg>
+          <span class="font-medium">Save</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useState, computed, watch } from '#imports';
+import { ref, useState, computed, watch } from '#imports';
 
 interface BillItem {
   name: string;
@@ -80,17 +290,32 @@ interface BillItem {
 
 interface NewItem {
   name: string;
-  price: number;
+  price: string;
   quantity: number;
 }
 
 const items = useState<BillItem[]>('items', () => []);
-const newItem = useState<NewItem>('newItem', () => ({ name: '', price: 0, quantity: 1 }));
+const newItem = useState<NewItem>('newItem', () => ({ name: '', price: '', quantity: 1 }));
 const serviceTaxInput = useState<number>('serviceTax', () => 0);
 const deliveryFeeInput = useState<number>('deliveryFee', () => 0);
+const serviceTaxIncluded = ref(false);
+const deliveryFeeIncluded = ref(false);
+
+// People counter and bill splitting
+const numberOfPeople = ref(1);
+const splitEqually = ref(true);
+const people = ref<Array<{ items: string[] }>>([{ items: [] }]);
+
+// Modal state for add item
+const showAddModal = ref(false);
+const modalItem = ref({ name: '', price: '', quantity: 1 });
 
 const isValidItem = computed(() => {
-  return newItem.value.name.trim() !== '' && newItem.value.price > 0 && newItem.value.quantity > 0;
+  return newItem.value.name.trim() !== '' && parseFloat(newItem.value.price) > 0 && newItem.value.quantity > 0;
+});
+
+const isValidModalItem = computed(() => {
+  return modalItem.value.name.trim() !== '' && parseFloat(modalItem.value.price) > 0 && modalItem.value.quantity > 0;
 });
 
 const formatPrice = (price: number): string => {
@@ -102,13 +327,13 @@ const formatPrice = (price: number): string => {
 };
 
 const addItem = () => {
-  if (!isValidItem.value) return;
+  if (!(newItem.value.name.trim() !== '' && parseFloat(newItem.value.price) > 0 && newItem.value.quantity > 0)) return;
   items.value.push({
     name: newItem.value.name.trim(),
-    price: newItem.value.price,
+    price: parseFloat(newItem.value.price),
     quantity: newItem.value.quantity
   });
-  newItem.value = { name: '', price: 0, quantity: 1 };
+  newItem.value = { name: '', price: '', quantity: 1 };
 };
 
 const removeItem = (index: number) => {
@@ -118,6 +343,66 @@ const removeItem = (index: number) => {
 const grandTotal = computed(() => {
   const itemsTotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
   return itemsTotal + (serviceTaxInput.value || 0) + (deliveryFeeInput.value || 0);
+});
+
+const openAddModal = () => {
+  modalItem.value = { name: '', price: '', quantity: 1 };
+  showAddModal.value = true;
+};
+const closeAddModal = () => {
+  showAddModal.value = false;
+};
+const saveModalItem = () => {
+  if (modalItem.value.name.trim() && parseFloat(modalItem.value.price) > 0 && modalItem.value.quantity > 0) {
+    items.value.push({
+      name: modalItem.value.name.trim(),
+      price: parseFloat(modalItem.value.price),
+      quantity: modalItem.value.quantity
+    });
+    closeAddModal();
+  }
+};
+
+const incrementPeople = () => {
+  numberOfPeople.value++;
+  people.value.push({ items: [] });
+};
+
+const decrementPeople = () => {
+  if (numberOfPeople.value > 1) {
+    numberOfPeople.value--;
+    people.value.pop();
+  }
+};
+
+const removePerson = (index: number) => {
+  if (numberOfPeople.value > 1) {
+    numberOfPeople.value--;
+    people.value.splice(index, 1);
+  }
+};
+
+const isPersonComplete = (index: number) => {
+  const person = people.value[index];
+  return person.items.length > 0;
+};
+
+watch(serviceTaxInput, (val, oldVal) => {
+  if (typeof val === 'number') {
+    serviceTaxInput.value = Number(val.toFixed(2));
+  }
+});
+
+watch(serviceTaxIncluded, (val) => {
+  if (!val) {
+    serviceTaxInput.value = 0;
+  }
+});
+
+watch(deliveryFeeIncluded, (val) => {
+  if (!val) {
+    deliveryFeeInput.value = 0;
+  }
 });
 </script>
 
@@ -172,10 +457,6 @@ const grandTotal = computed(() => {
   opacity: 0.9;
 }
 
-.bill-details {
-  margin-top: 2rem;
-}
-
 .bill-summary {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -187,4 +468,4 @@ const grandTotal = computed(() => {
   font-size: 1.2rem;
   color: var(--text-color);
 }
-</style> 
+</style>

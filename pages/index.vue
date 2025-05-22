@@ -6,58 +6,73 @@
       <div class="flex md:flex-row flex-col md:justify-between md:items-center gap-4 mx-auto max-w-6xl">
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-4xl tracking-tight">Split Bill</h1>
-            <span class="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full font-bold text-yellow-800 dark:text-yellow-200 text-xs">ALPHA</span>
+            <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-2xl tracking-tight">Split Bill</h1>
+            <span
+              class="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full font-bold text-yellow-800 dark:text-yellow-200 text-xs">ALPHA</span>
           </div>
-          <p class="mt-2 text-gray-600 dark:text-gray-300 text-lg">{{ $t('description') }}</p>
+          <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm">{{ $t('subtitle') }}</p>
         </div>
         <div class="flex gap-2">
           <button @click="toggleLanguage"
-            class="flex justify-center items-center self-start md:self-center bg-card-light hover:bg-primary-light dark:hover:bg-primary-dark dark:bg-card-dark p-2 border-2 border-primary-light dark:border-primary-dark rounded-full w-10 h-10 text-primary-light hover:text-card-light dark:hover:text-card-dark dark:text-primary-dark transition-all duration-300 cursor-pointer">
-            <span v-if="locale === 'en'">🇲🇾<span class='ml-1 text-xs'>BM</span></span>
-            <span v-else>🇬🇧<span class='ml-1 text-xs'>EN</span></span>
+            class="flex justify-center items-center self-start md:self-center bg-card-light hover:bg-primary-light dark:hover:bg-primary-dark dark:bg-card-dark px-4 py-2 rounded-xl w-auto h-10 font-medium text-primary-light hover:text-card-light dark:hover:text-card-dark dark:text-primary-dark text-sm transition-all duration-300 cursor-pointer">
+            <span v-if="locale === 'en'" class="flex items-center gap-2"><img src="/assets/img/my.svg"
+                alt="Malaysia Flag" class="w-5 h-5" /> MS</span>
+            <span v-else class="flex items-center gap-2"><img src="/assets/img/gb.svg" alt="UK Flag" class="w-5 h-5" />
+              EN</span>
           </button>
           <button @click="toggleTheme"
-            class="flex justify-center items-center self-start md:self-center bg-card-light hover:bg-primary-light dark:hover:bg-primary-dark dark:bg-card-dark p-2 border-2 border-primary-light dark:border-primary-dark rounded-full w-10 h-10 text-primary-light hover:text-card-light dark:hover:text-card-dark dark:text-primary-dark transition-all duration-300 cursor-pointer">
+            class="flex justify-center items-center self-start md:self-center bg-card-light hover:bg-primary-light dark:hover:bg-primary-dark dark:bg-card-dark px-4 py-2 rounded-xl w-auto h-10 font-medium text-primary-light hover:text-card-light dark:hover:text-card-dark dark:text-primary-dark text-sm transition-all duration-300 cursor-pointer">
             <span v-if="isDarkMode">☀️</span>
             <span v-else>🌙</span>
           </button>
         </div>
       </div>
     </header>
-    <main class="gap-8 grid grid-cols-1 lg:grid-cols-3 mx-auto py-10 w-full max-w-6xl">
+    <main class="gap-8 grid grid-cols-1 lg:grid-cols-3 mx-auto px-6 sm:px-0 py-10 w-full max-w-6xl">
       <!-- Left: Input Section -->
-      <section class="flex flex-col gap-8 lg:col-span-2 bg-card-light dark:bg-card-dark shadow-lg p-8 rounded-xl">
-        <div>
-          <h2 class="mb-2 font-bold text-2xl">{{ $t('title') }}</h2>
-          <p class="mb-6 text-gray-600 dark:text-gray-400">{{ $t('description') }}</p>
-          <div class="flex gap-4 mb-8">
+      <!-- <section class="flex flex-col gap-8 lg:col-span-2 bg-card-light dark:bg-card-dark shadow-lg p-8 rounded-xl"> -->
+      <div>
+        <div class="bg-card-light dark:bg-card-dark shadow-sm p-4 rounded-xl">
+          <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Choose how to enter your bill details
+          </h2>
+          <div class="my-4 border-t border-dashed"></div>
+          <div class="flex gap-4">
             <button :class="[
-              'px-6 py-3 rounded-lg font-bold border-2 transition-all duration-300',
+              'px-6 py-3 rounded-xl font-medium border-1 transition-all duration-300 w-full text-sm',
               mode === 'upload'
                 ? 'border-primary-light dark:border-primary-dark bg-primary-light text-card-light dark:bg-primary-dark dark:text-card-dark'
-                : 'border-primary-light dark:border-primary-dark bg-card-light text-primary-light dark:bg-card-dark dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
+                : 'border-primary-light dark:border-primary-dark bg-gray-100 text-primary-light dark:bg-card-dark dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
             ]" @click="() => { mode = 'upload'; clearBillState(); }">
+              <svg class="mx-auto mb-2 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
+              </svg>
               {{ $t('upload') }}
             </button>
             <button :class="[
-              'px-6 py-3 rounded-lg font-bold border-2 transition-all duration-300',
+              'px-6 py-3 rounded-xl font-medium border-1 transition-all duration-300 w-full text-sm',
               mode === 'manual'
                 ? 'border-primary-light dark:border-primary-dark bg-primary-light text-card-light dark:bg-primary-dark dark:text-card-dark'
-                : 'border-primary-light dark:border-primary-dark bg-card-light text-primary-light dark:bg-card-dark dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
+                : 'border-primary-light dark:border-primary-dark bg-gray-100 text-primary-light dark:bg-card-dark dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
             ]" @click="() => { mode = 'manual'; clearBillState(); }">
+              <svg class="mx-auto mb-2 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
               {{ $t('manual') }}
             </button>
           </div>
-          <div>
-            <BillUpload v-if="mode === 'upload'" />
-            <ManualEntry v-else />
-          </div>
         </div>
-      </section>
+        <div class="mt-4">
+          <BillUpload v-if="mode === 'upload'" @change-mode="mode = $event" />
+          <ManualEntry v-else />
+        </div>
+      </div>
+      <!-- </section> -->
       <!-- Right: Summary Section -->
-      <aside class="flex flex-col gap-6 bg-card-light dark:bg-card-dark shadow-lg p-8 rounded-xl">
-        <h2 class="mb-4 font-bold text-primary-light dark:text-primary-dark text-xl">{{ $t('summary') }}</h2>
+      <aside class="flex flex-col bg-card-light dark:bg-card-dark shadow-lg rounded-xl">
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Summary</h2>
+        <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-2">
           <div class="flex justify-between"><span>Jumlah Item</span><span class="font-semibold">0</span></div>
           <div class="flex justify-between"><span>Jumlah Keseluruhan</span><span class="font-semibold">RM 0.00</span>
@@ -66,8 +81,8 @@
           <div class="flex justify-between"><span>Setiap Orang</span><span class="font-semibold">RM 0.00</span></div>
         </div>
         <div class="bg-primary-light/10 dark:bg-primary-dark/10 mt-6 p-4 rounded-lg text-center">
-          <span class="block font-bold text-primary-light dark:text-primary-dark text-lg">Baki Perlu Bayar</span>
-          <span class="block mt-2 font-extrabold text-3xl">RM 0.00</span>
+          <span class="block font-bold text-primary-light dark:text-primary-dark text-sm">Baki Perlu Bayar</span>
+          <span class="block mt-2 font-extrabold text-2xl">RM 0.00</span>
         </div>
       </aside>
     </main>

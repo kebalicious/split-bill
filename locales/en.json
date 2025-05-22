@@ -1,7 +1,11 @@
 {
+  "subtitle": "Share bills easily and quickly",
   "title": "Bill Details",
   "description": "Choose how to enter your bill details.",
-  "upload": "Upload Bill/Receipt",
-  "manual": "Manual Entry",
-  "summary": "Summary"
+  "upload": "Upload Receipt",
+  "manual": "Enter Manually",
+  "summary": "Summary",
+  "addItem": "Add Item",
+  "or": "or",
+  "uploadReceipt": "Upload your receipt/bill"
 }
