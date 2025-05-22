@@ -1,0 +1,188 @@
+<template>
+  <div>
+    <div
+      class="relative flex flex-col justify-center items-center bg-gray-50 hover:bg-primary-light/10 dark:bg-gray-800 dark:hover:bg-primary-dark/10 mb-6 border-2 border-primary-light dark:border-primary-dark border-dashed rounded-xl outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark min-h-[260px] transition-colors duration-200 cursor-pointer"
+      @click="triggerFileInput"
+      @dragover.prevent="onDragOver"
+      @dragleave.prevent="onDragLeave"
+      @drop.prevent="onDrop"
+      :class="{ 'ring-2 ring-primary-light dark:ring-primary-dark': isDragging }"
+      tabindex="0"
+    >
+      <input
+        ref="fileInput"
+        type="file"
+        class="hidden"
+        @change="handleFileUpload"
+        accept="image/*,application/pdf"
+        :disabled="isLoading"
+      />
+      <div class="flex flex-col justify-center items-center pointer-events-none select-none">
+        <svg class="mb-2 w-12 h-12 text-primary-light dark:text-primary-dark" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
+        </svg>
+        <span class="font-medium text-gray-600 dark:text-gray-300 text-lg">Click or drag to upload bill/receipt</span>
+        <span class="mt-1 text-gray-400 text-xs">(JPG, PNG, PDF)</span>
+      </div>
+      <div v-if="isLoading" class="z-10 absolute inset-0 flex justify-center items-center bg-white/80 dark:bg-gray-900/80 rounded-xl">
+        <span class="font-semibold text-primary-light dark:text-primary-dark animate-pulse">Analyzing image...</span>
+      </div>
+    </div>
+    <div v-if="error" class="mb-4 text-red-500 text-sm">{{ error }}</div>
+    <div v-if="items.length > 0" class="bill-details">
+      <h3 class="mb-2 font-bold text-lg">Extracted Items:</h3>
+      <table class="mb-2 w-full text-sm">
+        <thead>
+          <tr>
+            <th class="py-1 text-left">Item</th>
+            <th class="py-1 text-left">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in items" :key="index">
+            <td class="py-1">{{ item.name }}</td>
+            <td class="py-1">{{ formatPrice(item.price) }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-2 pt-2 border-gray-200 dark:border-gray-700 border-t bill-summary">
+        <p>Service Tax: {{ formatPrice(serviceTax) }}</p>
+        <p class="font-bold grand-total">Grand Total: {{ formatPrice(grandTotal) }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import Tesseract from 'tesseract.js';
+import { useState } from '#imports';
+
+interface BillItem {
+  name: string;
+  price: number;
+}
+
+const items = useState<BillItem[]>('items', () => []);
+const serviceTax = useState<number>('serviceTax', () => 0);
+const grandTotal = useState<number>('grandTotal', () => 0);
+const isLoading = useState<boolean>('isLoading', () => false);
+const error = useState<string>('error', () => '');
+
+const fileInput = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
+
+const triggerFileInput = () => {
+  if (!isLoading.value) fileInput.value?.click();
+};
+
+const onDragOver = () => {
+  isDragging.value = true;
+};
+const onDragLeave = () => {
+  isDragging.value = false;
+};
+const onDrop = (event: DragEvent) => {
+  isDragging.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (file) processFile(file);
+};
+
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) processFile(file);
+};
+
+const processFile = async (file: File) => {
+  try {
+    isLoading.value = true;
+    error.value = '';
+    items.value = [];
+    serviceTax.value = 0;
+    grandTotal.value = 0;
+    const result = await Tesseract.recognize(file, 'eng');
+    const text = result.data.text;
+    await parseBill(text);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Error processing image';
+    console.error('Error processing image:', err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const parseBill = async (text: string): Promise<void> => {
+  // Simple parsing logic (replace with actual parsing logic)
+  const lines = text.split('\n');
+  const parsedItems = lines
+    .filter(line => line.trim()) // Remove empty lines
+    .map(line => {
+      const parts = line.split(' ');
+      const price = parseFloat(parts[parts.length - 1]) || 0;
+      const name = parts.slice(0, -1).join(' ').trim();
+      return {
+        name,
+        price
+      };
+    })
+    .filter(item => item.name && item.price > 0); // Filter out invalid items
+
+  if (parsedItems.length === 0) {
+    throw new Error('No valid items found in the bill');
+  }
+
+  items.value = parsedItems;
+  serviceTax.value = calculateServiceTax(parsedItems);
+  grandTotal.value = calculateGrandTotal(parsedItems, serviceTax.value);
+};
+
+const calculateServiceTax = (items: BillItem[]): number => {
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+  return Math.round(subtotal * 0.1 * 100) / 100; // 10% service tax
+};
+
+const calculateGrandTotal = (items: BillItem[], tax: number): number => {
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+  return subtotal + tax;
+};
+
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('en-MY', {
+    style: 'currency',
+    currency: 'MYR',
+    minimumFractionDigits: 2
+  }).format(price);
+};
+</script>
+
+<style scoped>
+.upload-section {
+  margin-bottom: 2rem;
+}
+
+.error-message {
+  color: var(--error-color);
+  margin-top: 0.5rem;
+}
+
+.loading {
+  color: var(--text-color);
+  margin-top: 0.5rem;
+}
+
+.bill-details {
+  margin-top: 2rem;
+}
+
+.bill-summary {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.grand-total {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+</style> 
