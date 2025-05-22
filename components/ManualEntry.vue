@@ -4,7 +4,7 @@
       <div class="bg-white shadow p-4 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Add your bill details</h2>
         <div class="my-4 border-t border-dashed"></div>
-        <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 text-xs uppercase tracking-wide">
+        <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 text-sm">
           <div class="w-12">Qty.</div>
           <div class="flex-1">Item(s)</div>
           <div class="w-20 text-right">Price</div>
@@ -14,6 +14,9 @@
           <div class="w-12">{{ item.quantity }}</div>
           <div class="flex-1">{{ item.name }}</div>
           <div class="w-20 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
+        </div>
+        <div v-if="items.length === 0" class="flex justify-center items-center pt-8 pb-0 text-gray-500 text-sm">
+          No item added
         </div>
         <!-- Add Item Row (Mobile, styled like screenshot) -->
         <div
@@ -110,48 +113,19 @@
                 </div>
               </label>
             </div>
-
-            <div v-if="!splitEqually" class="flex flex-col gap-3">
-              <div v-for="(person, index) in people" :key="index" class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                  <span class="text-gray-500">Person {{ index + 1 }}</span>
-                  <div class="flex items-center gap-2">
-                    <button @click="removePerson(index)"
-                      class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <div v-for="item in items" :key="item.name" class="flex items-center gap-2">
-                    <input type="checkbox" :id="`${index}-${item.name}`" v-model="person.items" :value="item.name"
-                      class="w-4 h-4">
-                    <label :for="`${index}-${item.name}`" class="text-sm">{{ item.name }}</label>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-gray-500 text-sm">Status:</span>
-                  <div v-if="isPersonComplete(index)" class="text-green-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div v-else class="text-yellow-500 animate-spin">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </div>
-                </div>
+          </div>
+          <div class="my-4 border-t border-dashed"></div>
+          <div>
+            <div v-if="!splitEqually" class="flex flex-col gap-4">
+              <div class="gap-3 grid grid-cols-2 sm:grid-cols-3">
+                <button v-for="(person, index) in people" :key="index" @click="openNameModal(index)"
+                  class="flex justify-center items-center hover:bg-gray-50 dark:hover:bg-gray-800 p-3 border rounded-lg">
+                  <span class="text-sm">{{ person.name || `Person ${index + 1}` }}</span>
+                </button>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -164,7 +138,8 @@
             <div v-if="splitEqually">
               <div class="mb-2 text-gray-500">Each person pays:</div>
               <div class="font-bold text-xl">{{ formatPrice(getRoundedAmount(grandTotal / numberOfPeople)) }}</div>
-              <div class="mt-1 text-gray-500 text-sm">Rounded by: {{ formatPrice(getRoundingAmount(grandTotal / numberOfPeople)) }}</div>
+              <div class="mt-1 text-gray-500 text-sm">Rounded by: {{ formatPrice(getRoundingAmount(grandTotal /
+                numberOfPeople)) }}</div>
             </div>
 
             <div v-else class="mt-4">
@@ -282,6 +257,32 @@
         </button>
       </div>
     </div>
+
+    <!-- Person Name Modal -->
+    <div v-if="showNameModal"
+      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
+      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-sm">
+        <div class="flex justify-between items-center mb-8">
+          <h3 class="font-bold text-lg">Enter Name</h3>
+          <button @click="closeNameModal" class="text-gray-400 hover:text-red-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="flex flex-col gap-3">
+          <div>
+            <input v-model="nameInput" type="text" class="p-3 border rounded-lg focus:outline-blue-200 w-full"
+              placeholder="Enter name" />
+          </div>
+        </div>
+        <button @click="saveName"
+          class="flex justify-center items-center gap-2 bg-primary-light dark:bg-primary-dark mt-6 p-3 rounded-xl w-full font-bold text-white text-sm">
+          Save
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -300,6 +301,11 @@ interface NewItem {
   quantity: number;
 }
 
+interface Person {
+  items: string[];
+  name: string;
+}
+
 const items = useState<BillItem[]>('items', () => []);
 const newItem = useState<NewItem>('newItem', () => ({ name: '', price: '', quantity: 1 }));
 const serviceTaxInput = useState<number>('serviceTax', () => 0);
@@ -310,7 +316,7 @@ const deliveryFeeIncluded = ref(false);
 // People counter and bill splitting
 const numberOfPeople = ref(1);
 const splitEqually = ref(true);
-const people = ref<Array<{ items: string[] }>>([{ items: [] }]);
+const people = ref<Person[]>([{ items: [], name: '' }]);
 
 // Modal state for add item
 const showAddModal = ref(false);
@@ -371,7 +377,7 @@ const saveModalItem = () => {
 
 const incrementPeople = () => {
   numberOfPeople.value++;
-  people.value.push({ items: [] });
+  people.value.push({ items: [], name: '' });
 };
 
 const decrementPeople = () => {
@@ -497,6 +503,28 @@ const savePersonItems = () => {
 
   people.value[selectedPersonIndex.value].items = selectedItems;
   closePersonModal();
+};
+
+// Name modal state
+const showNameModal = ref(false);
+const nameInput = ref('');
+const selectedNameIndex = ref(0);
+
+const openNameModal = (index: number) => {
+  selectedNameIndex.value = index;
+  nameInput.value = people.value[index].name;
+  showNameModal.value = true;
+};
+
+const closeNameModal = () => {
+  showNameModal.value = false;
+};
+
+const saveName = () => {
+  if (nameInput.value.trim()) {
+    people.value[selectedNameIndex.value].name = nameInput.value.trim();
+    closeNameModal();
+  }
 };
 </script>
 
