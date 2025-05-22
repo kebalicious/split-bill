@@ -3,7 +3,7 @@
     class="bg-background-light dark:bg-background-dark min-h-screen text-text-light dark:text-text-dark transition-colors duration-300">
     <header
       class="bg-gradient-to-b from-primary-light/10 dark:from-primary-dark/10 to-transparent px-6 pt-16 pb-4 w-full">
-      <div class="flex md:flex-row flex-col md:justify-between md:items-center gap-4 mx-auto max-w-6xl">
+      <div class="flex md:flex-row flex-col md:justify-between md:items-center gap-4 mx-auto max-w-7xl">
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-2xl tracking-tight">Split Bill</h1>
@@ -28,11 +28,10 @@
         </div>
       </div>
     </header>
-    <main class="gap-8 grid grid-cols-1 lg:grid-cols-3 mx-auto px-6 sm:px-0 py-10 w-full max-w-6xl">
+    <main class="gap-8 grid grid-cols-1 lg:grid-cols-3 mx-auto px-6 sm:px-0 py-10 w-full max-w-7xl">
       <!-- Left: Input Section -->
-      <!-- <section class="flex flex-col gap-8 lg:col-span-2 bg-card-light dark:bg-card-dark shadow-lg p-8 rounded-xl"> -->
-      <div>
-        <div class="bg-card-light dark:bg-card-dark shadow-sm p-4 rounded-xl">
+      <div class="lg:col-span-2">
+        <div class="bg-card-light dark:bg-card-dark shadow-sm p-4 sm:p-6 rounded-xl">
           <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('chooseHow') }}</h2>
           <div class="my-4 border-t border-dashed"></div>
           <div class="flex gap-4">
@@ -67,7 +66,12 @@
           <ManualEntry v-else />
         </div>
       </div>
-      <!-- </section> -->
+      <!-- Right: Summary Section -->
+      <div class="lg:col-span-1">
+        <div class="top-4 sticky">
+          <SummaryPage />
+        </div>
+      </div>
     </main>
   </div>
 </template>

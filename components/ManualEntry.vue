@@ -1,26 +1,26 @@
 <template>
   <div>
     <div class="space-y-4">
-      <div class="bg-white shadow p-4 rounded-xl">
+      <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('addBillDetails') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 text-sm">
-          <div class="w-12">{{ $t('quantity') }}</div>
+          <div class="w-12 sm:w-16">{{ $t('quantity') }}</div>
           <div class="flex-1">{{ $t('items') }}</div>
-          <div class="w-20 text-right">{{ $t('price') }}</div>
+          <div class="w-20 sm:w-24 text-right">{{ $t('price') }}</div>
         </div>
         <div v-for="(item, index) in items" :key="index"
           class="flex items-center py-4 border-b last:border-b-0 text-gray-900 text-sm">
-          <div class="w-12">{{ item.quantity }}</div>
+          <div class="w-12 sm:w-16">{{ item.quantity }}</div>
           <div class="flex-1">{{ item.name }}</div>
-          <div class="w-20 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
+          <div class="w-20 sm:w-24 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
         </div>
         <div v-if="items.length === 0" class="flex justify-center items-center pt-8 pb-0 text-gray-500 text-sm">
           {{ $t('noItemAdded') }}
         </div>
-        <!-- Add Item Row (Mobile, styled like screenshot) -->
+        <!-- Add Item Row -->
         <div
-          class="flex justify-center items-center gap-2 bg-primary-light active:bg-primary-light/90 dark:active:bg-primary-dark/90 dark:bg-primary-dark my-8 p-3 border border-primary-light dark:border-primary-dark rounded-xl font-medium text-card-light dark:text-card-dark text-sm transition cursor-pointer"
+          class="flex justify-center items-center gap-2 bg-primary-light hover:bg-primary-light/90 active:bg-primary-light/90 dark:hover:bg-primary-dark/90 dark:active:bg-primary-dark/90 dark:bg-primary-dark my-8 p-3 border border-primary-light dark:border-primary-dark rounded-xl font-medium text-card-light dark:text-card-dark text-sm transition cursor-pointer"
           @click="openAddModal">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" fill="none" />
@@ -33,39 +33,43 @@
           <div class="flex justify-between"><span class="text-gray-500">{{ $t('subtotal') }}</span><span>{{
             formatPrice(items.reduce((sum, item) => sum + item.price * item.quantity, 0))}}</span></div>
           <div class="my-4 border-t border-dashed"></div>
-          <div class="flex flex-col space-y-4">
-            <div class="flex flex-col gap-2">
-              <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('serviceTaxIncluded') }}</span>
-                <label class="inline-flex relative items-center cursor-pointer">
-                  <input type="checkbox" class="sr-only peer" v-model="serviceTaxIncluded">
-                  <div
-                    class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
-                  </div>
-                </label>
-              </div>
-              <div v-if="serviceTaxIncluded"
-                class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-                <label for="serviceTax" class="block w-1/2 font-medium cursor-pointer">{{ $t('serviceTax') }}</label>
-                <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="999.99" step="0.01"
-                  class="outline-none w-1/2 text-end" placeholder="0.00"
-                  @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+          <div class="flex flex-col sm:flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('serviceTaxIncluded') }}</span>
+                  <label class="inline-flex relative items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" v-model="serviceTaxIncluded">
+                    <div
+                      class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                    </div>
+                  </label>
+                </div>
+                <div v-if="serviceTaxIncluded"
+                  class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
+                  <label for="serviceTax" class="block w-1/2 font-medium cursor-pointer">{{ $t('serviceTax') }}</label>
+                  <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="999.99" step="0.01"
+                    class="outline-none w-1/2 text-end" placeholder="0.00"
+                    @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+                </div>
               </div>
             </div>
-            <div class="flex flex-col gap-2">
-              <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('deliveryFeeIncluded') }}</span>
-                <label class="inline-flex relative items-center cursor-pointer">
-                  <input type="checkbox" class="sr-only peer" v-model="deliveryFeeIncluded">
-                  <div
-                    class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
-                  </div>
-                </label>
-              </div>
-              <div v-if="deliveryFeeIncluded"
-                class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-                <label for="deliveryFee" class="block w-1/2 font-medium cursor-pointer">{{ $t('deliveryFee') }}</label>
-                <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99" step="0.01"
-                  class="outline-none w-1/2 text-end" placeholder="0.00"
-                  @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+            <div class="flex-1 min-w-[200px]">
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('deliveryFeeIncluded') }}</span>
+                  <label class="inline-flex relative items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" v-model="deliveryFeeIncluded">
+                    <div
+                      class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                    </div>
+                  </label>
+                </div>
+                <div v-if="deliveryFeeIncluded"
+                  class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
+                  <label for="deliveryFee" class="block w-1/2 font-medium cursor-pointer">{{ $t('deliveryFee') }}</label>
+                  <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99" step="0.01"
+                    class="outline-none w-1/2 text-end" placeholder="0.00"
+                    @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+                </div>
               </div>
             </div>
           </div>
@@ -75,7 +79,7 @@
         </div>
       </div>
 
-      <div class="bg-white shadow p-4 rounded-xl">
+      <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('splitBillTitle') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
@@ -114,12 +118,11 @@
         </div>
       </div>
 
-      <div class="bg-white shadow p-4 rounded-xl">
+      <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
-
             <div class="mb-2 text-gray-500">{{ $t('eachPersonPays') }}</div>
 
             <div v-if="splitEqually">
@@ -129,7 +132,7 @@
             </div>
 
             <div v-else>
-              <div class="gap-4 grid grid-cols-2 sm:grid-cols-4">
+              <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 <button v-for="(person, index) in people" :key="index" @click="openPersonModal(index)" :class="[
                   'hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center relative',
                   person.paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
@@ -152,7 +155,7 @@
 
     <!-- Add Item Modal -->
     <div v-if="showAddModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
-      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-sm">
+      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-md">
         <div class="flex justify-between items-center mb-8">
           <h3 class="font-bold text-lg">{{ $t('addItem') }}</h3>
           <button @click="closeAddModal" class="text-gray-400 hover:text-red-700">
@@ -195,7 +198,7 @@
     <div v-if="showPersonModal"
       class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 overflow-y-auto text-sm">
       <div
-        class="relative flex flex-col bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-lg max-h-[80vh]">
+        class="relative flex flex-col bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-2xl max-h-[80vh]">
         <div class="flex justify-between items-center mb-6">
           <div class="flex flex-col">
             <h3 class="font-bold text-lg">Select Items</h3>
