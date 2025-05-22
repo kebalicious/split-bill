@@ -5,7 +5,10 @@
       class="bg-gradient-to-b from-primary-light/10 dark:from-primary-dark/10 to-transparent px-6 pt-16 pb-4 w-full">
       <div class="flex md:flex-row flex-col md:justify-between md:items-center gap-4 mx-auto max-w-6xl">
         <div>
-          <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-4xl tracking-tight">Split Bill</h1>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-4xl tracking-tight">Split Bill</h1>
+            <span class="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full font-bold text-yellow-800 dark:text-yellow-200 text-xs">ALPHA</span>
+          </div>
           <p class="mt-2 text-gray-600 dark:text-gray-300 text-lg">{{ $t('description') }}</p>
         </div>
         <div class="flex gap-2">
