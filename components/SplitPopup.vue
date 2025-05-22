@@ -1,18 +1,18 @@
 <template>
   <div class="split-popup">
-    <h2>Split Our Bills</h2>
+    <h2>{{ $t('splitOurBills') }}</h2>
     <div v-for="(user, index) in users" :key="index">
-      <input v-model="user.name" placeholder="User Name" />
+      <input v-model="user.name" :placeholder="$t('userName')" />
       <div v-for="(item, itemIndex) in items" :key="itemIndex">
         <label>
           {{ item.name }} ({{ item.price }})
           <input type="number" v-model.number="user.items[itemIndex]" min="0" />
         </label>
       </div>
-      <p>Total: {{ calculateUserTotal(user) }}</p>
+      <p>{{ $t('total') }}: {{ calculateUserTotal(user) }}</p>
     </div>
-    <button @click="addUser">Add User</button>
-    <button @click="calculateTotals">Calculate Totals</button>
+    <button @click="addUser">{{ $t('addUser') }}</button>
+    <button @click="calculateTotals">{{ $t('calculateTotals') }}</button>
   </div>
 </template>
 

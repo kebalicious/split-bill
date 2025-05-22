@@ -2,12 +2,12 @@
   <div>
     <div class="space-y-4">
       <div class="bg-white shadow p-4 rounded-xl">
-        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Add your bill details</h2>
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('addBillDetails') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 text-sm">
-          <div class="w-12">Qty.</div>
-          <div class="flex-1">Item(s)</div>
-          <div class="w-20 text-right">Price</div>
+          <div class="w-12">{{ $t('quantity') }}</div>
+          <div class="flex-1">{{ $t('items') }}</div>
+          <div class="w-20 text-right">{{ $t('price') }}</div>
         </div>
         <div v-for="(item, index) in items" :key="index"
           class="flex items-center py-4 border-b last:border-b-0 text-gray-900 text-sm">
@@ -16,7 +16,7 @@
           <div class="w-20 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
         </div>
         <div v-if="items.length === 0" class="flex justify-center items-center pt-8 pb-0 text-gray-500 text-sm">
-          No item added
+          {{ $t('noItemAdded') }}
         </div>
         <!-- Add Item Row (Mobile, styled like screenshot) -->
         <div
@@ -26,17 +26,16 @@
             <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" fill="none" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
           </svg>
-          <span class="font-medium">Add Item</span>
+          <span class="font-medium">{{ $t('addItem') }}</span>
         </div>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-1 text-sm">
-          <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>{{
+          <div class="flex justify-between"><span class="text-gray-500">{{ $t('subtotal') }}</span><span>{{
             formatPrice(items.reduce((sum, item) => sum + item.price * item.quantity, 0))}}</span></div>
           <div class="my-4 border-t border-dashed"></div>
           <div class="flex flex-col space-y-4">
             <div class="flex flex-col gap-2">
-              <div class="flex justify-between items-center"><span class="text-gray-500">Is service tax
-                  included?</span>
+              <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('serviceTaxIncluded') }}</span>
                 <label class="inline-flex relative items-center cursor-pointer">
                   <input type="checkbox" class="sr-only peer" v-model="serviceTaxIncluded">
                   <div
@@ -46,15 +45,14 @@
               </div>
               <div v-if="serviceTaxIncluded"
                 class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-                <label for="serviceTax" class="block w-1/2 font-medium cursor-pointer">Service Tax</label>
+                <label for="serviceTax" class="block w-1/2 font-medium cursor-pointer">{{ $t('serviceTax') }}</label>
                 <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="999.99" step="0.01"
                   class="outline-none w-1/2 text-end" placeholder="0.00"
                   @focus="(e) => (e.target as HTMLInputElement).value = ''" />
               </div>
             </div>
             <div class="flex flex-col gap-2">
-              <div class="flex justify-between items-center"><span class="text-gray-500">Is delivery fee
-                  included?</span>
+              <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('deliveryFeeIncluded') }}</span>
                 <label class="inline-flex relative items-center cursor-pointer">
                   <input type="checkbox" class="sr-only peer" v-model="deliveryFeeIncluded">
                   <div
@@ -64,7 +62,7 @@
               </div>
               <div v-if="deliveryFeeIncluded"
                 class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-                <label for="deliveryFee" class="block w-1/2 font-medium cursor-pointer">Delivery Fee</label>
+                <label for="deliveryFee" class="block w-1/2 font-medium cursor-pointer">{{ $t('deliveryFee') }}</label>
                 <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99" step="0.01"
                   class="outline-none w-1/2 text-end" placeholder="0.00"
                   @focus="(e) => (e.target as HTMLInputElement).value = ''" />
@@ -72,19 +70,18 @@
             </div>
           </div>
           <div class="my-4 border-t border-dashed"></div>
-          <div class="flex justify-between font-bold text-base"><span>Grand Total</span><span>{{
+          <div class="flex justify-between font-bold text-base"><span>{{ $t('grandTotal') }}</span><span>{{
             formatPrice(grandTotal) }}</span></div>
         </div>
       </div>
 
       <div class="bg-white shadow p-4 rounded-xl">
-        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Choose how you would like to split the
-          bill</h2>
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('splitBillTitle') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">No. of people</span>
+              <span class="text-gray-500">{{ $t('numberOfPeople') }}</span>
               <div class="flex items-center gap-2">
                 <button @click="decrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
@@ -105,7 +102,7 @@
 
           <div class="flex flex-col gap-2">
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">Split bill equally?</span>
+              <span class="text-gray-500">{{ $t('splitEqually') }}</span>
               <label class="inline-flex relative items-center cursor-pointer">
                 <input type="checkbox" class="sr-only peer" v-model="splitEqually">
                 <div
@@ -118,16 +115,16 @@
       </div>
 
       <div class="bg-white shadow p-4 rounded-xl">
-        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Summary</h2>
+        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
 
-            <div class="mb-2 text-gray-500">Each person pays:</div>
+            <div class="mb-2 text-gray-500">{{ $t('eachPersonPays') }}</div>
 
             <div v-if="splitEqually">
               <div class="font-bold text-xl">{{ formatPrice(getRoundedAmount(grandTotal / numberOfPeople)) }}</div>
-              <div class="mt-1 text-gray-400 text-sm">Rounded by: {{ formatPrice(getRoundingAmount(grandTotal /
+              <div class="mt-1 text-gray-400 text-sm">{{ $t('roundedBy') }}: {{ formatPrice(getRoundingAmount(grandTotal /
                 numberOfPeople)) }}</div>
             </div>
 
@@ -137,7 +134,7 @@
                   'hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center relative',
                   person.paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
                 ]">
-                  <div class="mb-1 text-gray-500 text-sm">{{ person.name || `Person ${index + 1}` }}</div>
+                  <div class="mb-1 text-gray-500 text-sm">{{ person.name || `${$t('person')} ${index + 1}` }}</div>
                   <div class="font-bold text-lg">{{ formatPrice(getPersonTotal(index)) }}</div>
                   <div v-if="person.paid" class="top-2 right-2 absolute text-green-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
@@ -157,7 +154,7 @@
     <div v-if="showAddModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
       <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-sm">
         <div class="flex justify-between items-center mb-8">
-          <h3 class="font-bold text-lg">Add Item</h3>
+          <h3 class="font-bold text-lg">{{ $t('addItem') }}</h3>
           <button @click="closeAddModal" class="text-gray-400 hover:text-red-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
@@ -168,17 +165,17 @@
         <div class="flex flex-col gap-3">
           <div>
             <input v-model="modalItem.name" type="text" class="p-3 border rounded-lg focus:outline-blue-200 w-full"
-              placeholder="Item name" />
+              :placeholder="$t('itemName')" />
           </div>
           <div
             class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-            <label for="modalPrice" class="block w-1/2 font-medium cursor-pointer">Price</label>
+            <label for="modalPrice" class="block w-1/2 font-medium cursor-pointer">{{ $t('price') }}</label>
             <input id="modalPrice" v-model="modalItem.price" type="number" class="outline-none w-1/2 text-end"
               placeholder="0.00" />
           </div>
           <div
             class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-            <label for="modalQuantity" class="block w-1/2 font-medium cursor-pointer">Quantity</label>
+            <label for="modalQuantity" class="block w-1/2 font-medium cursor-pointer">{{ $t('quantity') }}</label>
             <input id="modalQuantity" v-model.number="modalItem.quantity" type="number" min="1" step="1"
               class="outline-none w-1/2 text-end" placeholder="1" />
           </div>
@@ -189,7 +186,7 @@
             <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" fill="none" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
           </svg>
-          <span class="font-medium">Save</span>
+          <span class="font-medium">{{ $t('save') }}</span>
         </button>
       </div>
     </div>

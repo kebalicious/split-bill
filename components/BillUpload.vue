@@ -9,7 +9,7 @@
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <p class="text-yellow-700 dark:text-yellow-300 text-sm">This feature is not available for a while.</p>
+        <p class="text-yellow-700 dark:text-yellow-300 text-sm">{{ $t('featureUnavailable') }}</p>
       </div>
     </div>
 
@@ -26,23 +26,22 @@
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
           </svg>
-          <span class="font-medium text-text-light dark:text-text-dark text-sm">Click or drag to upload
-            bill/receipt</span>
-          <span class="mt-1 text-text-light/60 dark:text-text-dark/60 text-xs">(JPG, PNG, PDF)</span>
+          <span class="font-medium text-text-light dark:text-text-dark text-sm">{{ $t('clickOrDrag') }}</span>
+          <span class="mt-1 text-text-light/60 dark:text-text-dark/60 text-xs">{{ $t('fileTypes') }}</span>
         </div>
         <div v-if="isLoading"
           class="z-10 absolute inset-0 flex justify-center items-center bg-card-light/80 dark:bg-card-dark/80 rounded-xl">
-          <span class="font-semibold text-primary-light dark:text-primary-dark animate-pulse">Analyzing image...</span>
+          <span class="font-semibold text-primary-light dark:text-primary-dark animate-pulse">{{ $t('analyzingImage') }}</span>
         </div>
       </div>
       <div v-if="error" class="mb-4 text-red-500 text-sm">{{ error }}</div>
       <div v-if="items.length > 0" class="bill-details">
-        <h3 class="mb-2 font-bold text-sm">Extracted Items:</h3>
+        <h3 class="mb-2 font-bold text-sm">{{ $t('extractedItems') }}</h3>
         <table class="mb-2 w-full text-sm">
           <thead>
             <tr>
-              <th class="py-1 text-left">Item</th>
-              <th class="py-1 text-left">Price</th>
+              <th class="py-1 text-left">{{ $t('items') }}</th>
+              <th class="py-1 text-left">{{ $t('price') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -53,8 +52,8 @@
           </tbody>
         </table>
         <div class="mt-2 pt-2 border-gray-200 dark:border-gray-700 border-t bill-summary">
-          <p>Service Tax: {{ formatPrice(serviceTax) }}</p>
-          <p class="font-bold text-sm">Grand Total: {{ formatPrice(grandTotal) }}</p>
+          <p>{{ $t('serviceTax') }}: {{ formatPrice(serviceTax) }}</p>
+          <p class="font-bold text-sm">{{ $t('grandTotal') }}: {{ formatPrice(grandTotal) }}</p>
         </div>
       </div>
     </div>

@@ -1,12 +1,12 @@
 <template>
   <div class="user-bill">
-    <h2>{{ user.name }}'s Bill</h2>
+    <h2>{{ $t('userBill', { name: user.name }) }}</h2>
     <table>
       <thead>
         <tr>
-          <th>Item</th>
-          <th>Quantity</th>
-          <th>Price</th>
+          <th>{{ $t('items') }}</th>
+          <th>{{ $t('quantity') }}</th>
+          <th>{{ $t('price') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -17,11 +17,11 @@
         </tr>
       </tbody>
     </table>
-    <p>Total: {{ calculateTotal() }}</p>
-    <p>Tax: {{ taxPerUser }}</p>
-    <p>Grand Total: {{ calculateTotal() + taxPerUser }}</p>
-    <button @click="downloadBill">Download PNG</button>
-    <button @click="markAsPaid">Done</button>
+    <p>{{ $t('total') }}: {{ calculateTotal() }}</p>
+    <p>{{ $t('tax') }}: {{ taxPerUser }}</p>
+    <p>{{ $t('grandTotal') }}: {{ calculateTotal() + taxPerUser }}</p>
+    <button @click="downloadBill">{{ $t('downloadPNG') }}</button>
+    <button @click="markAsPaid">{{ $t('done') }}</button>
   </div>
 </template>
 

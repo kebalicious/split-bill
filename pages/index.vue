@@ -33,8 +33,7 @@
       <!-- <section class="flex flex-col gap-8 lg:col-span-2 bg-card-light dark:bg-card-dark shadow-lg p-8 rounded-xl"> -->
       <div>
         <div class="bg-card-light dark:bg-card-dark shadow-sm p-4 rounded-xl">
-          <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Choose how to enter your bill details
-          </h2>
+          <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('chooseHow') }}</h2>
           <div class="my-4 border-t border-dashed"></div>
           <div class="flex gap-4">
             <button :class="[

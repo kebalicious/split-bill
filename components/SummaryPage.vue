@@ -1,50 +1,46 @@
 <template>
   <div class="summary-page">
-    <h2>Summary</h2>
-    <div v-for="(user, index) in users" :key="index">
-      <h3>{{ user.name }}</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Quantity</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, itemIndex) in user.items" :key="itemIndex">
-            <td>{{ items[itemIndex].name }}</td>
-            <td>{{ item }}</td>
-            <td>{{ items[itemIndex].price * item }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <p>Total: {{ calculateUserTotal(user) }}</p>
-      <p>Tax: {{ taxPerUser }}</p>
-      <p>Grand Total: {{ calculateUserTotal(user) + taxPerUser }}</p>
+    <h1>{{ $t('summaryPage') }}</h1>
+    <div class="user-bills">
+      <UserBill
+        v-for="(user, index) in users"
+        :key="index"
+        :user="user"
+        :taxPerUser="taxPerUser"
+        @paid="markAsPaid(index)"
+      />
     </div>
   </div>
 </template>
 
 <script>
+import UserBill from './UserBill.vue';
 import { mapState } from 'vuex';
 
 export default {
   name: 'SummaryPage',
+  components: {
+    UserBill
+  },
   computed: {
-    ...mapState(['users', 'items', 'serviceTax']),
-    taxPerUser() {
-      return this.serviceTax / this.users.length;
-    }
+    ...mapState(['users', 'taxPerUser'])
   },
   methods: {
-    calculateUserTotal(user) {
-      return user.items.reduce((sum, quantity, index) => sum + quantity * this.items[index].price, 0);
+    markAsPaid(index) {
+      this.$store.commit('markUserAsPaid', index);
     }
   }
 };
 </script>
 
 <style scoped>
-/* Add your styles here */
+.summary-page {
+  padding: 20px;
+}
+
+.user-bills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
 </style> 
