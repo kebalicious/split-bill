@@ -114,18 +114,6 @@
               </label>
             </div>
           </div>
-          <div class="my-4 border-t border-dashed"></div>
-          <div>
-            <div v-if="!splitEqually" class="flex flex-col gap-4">
-              <div class="gap-3 grid grid-cols-2 sm:grid-cols-3">
-                <button v-for="(person, index) in people" :key="index" @click="openNameModal(index)"
-                  class="flex justify-center items-center hover:bg-gray-50 dark:hover:bg-gray-800 p-3 border rounded-lg">
-                  <span class="text-sm">{{ person.name || `Person ${index + 1}` }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 
@@ -135,20 +123,28 @@
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
 
+            <div class="mb-2 text-gray-500">Each person pays:</div>
+
             <div v-if="splitEqually">
-              <div class="mb-2 text-gray-500">Each person pays:</div>
               <div class="font-bold text-xl">{{ formatPrice(getRoundedAmount(grandTotal / numberOfPeople)) }}</div>
-              <div class="mt-1 text-gray-500 text-sm">Rounded by: {{ formatPrice(getRoundingAmount(grandTotal /
+              <div class="mt-1 text-gray-400 text-sm">Rounded by: {{ formatPrice(getRoundingAmount(grandTotal /
                 numberOfPeople)) }}</div>
             </div>
 
-            <div v-else class="mt-4">
-              <div class="mb-2 text-gray-500">Select items for each person:</div>
+            <div v-else>
               <div class="gap-4 grid grid-cols-2 sm:grid-cols-4">
-                <button v-for="(_, index) in Array(numberOfPeople)" :key="index" @click="openPersonModal(index)"
-                  class="hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center">
-                  <div class="mb-1 font-bold text-lg">[{{ index + 1 }}]</div>
-                  <div class="text-gray-500 text-sm">{{ formatPrice(getPersonTotal(index)) }}</div>
+                <button v-for="(person, index) in people" :key="index" @click="openPersonModal(index)" :class="[
+                  'hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center relative',
+                  person.paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
+                ]">
+                  <div class="mb-1 text-gray-500 text-sm">{{ person.name || `Person ${index + 1}` }}</div>
+                  <div class="font-bold text-lg">{{ formatPrice(getPersonTotal(index)) }}</div>
+                  <div v-if="person.paid" class="top-2 right-2 absolute text-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                 </button>
               </div>
             </div>
@@ -200,10 +196,13 @@
 
     <!-- Person Items Modal -->
     <div v-if="showPersonModal"
-      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
-      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-lg">
-        <div class="flex justify-between items-center mb-8">
-          <h3 class="font-bold text-lg">Person {{ selectedPersonIndex + 1 }} Items</h3>
+      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 overflow-y-auto text-sm">
+      <div
+        class="relative flex flex-col bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-lg max-h-[80vh]">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex flex-col">
+            <h3 class="font-bold text-lg">Select Items</h3>
+          </div>
           <button @click="closePersonModal" class="text-gray-400 hover:text-red-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
@@ -212,10 +211,18 @@
           </button>
         </div>
 
-        <div class="flex flex-col gap-4">
-          <div v-for="item in items" :key="item.name" class="flex items-center gap-4 p-3 border rounded-lg">
+        <input v-model="people[selectedPersonIndex].name" type="text"
+          class="p-3 border rounded-lg focus:outline-blue-200 w-full" placeholder="Enter name" />
+        <div class="my-4 border-t border-dashed"></div>
+
+        <div class="flex flex-col gap-4 overflow-y-auto">
+          <div v-for="item in items" :key="item.name" :class="[
+            'flex items-center gap-4 p-3 border rounded-lg',
+            isItemFullySelected(item.name, selectedPersonIndex) ? 'bg-gray-200 dark:bg-gray-700' : ''
+          ]">
             <input type="checkbox" :id="`person-${selectedPersonIndex}-${item.name}`"
-              v-model="personItems[selectedPersonIndex][item.name].selected" class="w-4 h-4">
+              v-model="personItems[selectedPersonIndex][item.name].selected"
+              :disabled="isItemFullySelected(item.name, selectedPersonIndex)" class="w-4 h-4">
 
             <label :for="`person-${selectedPersonIndex}-${item.name}`" class="flex-1">
               {{ item.name }}
@@ -223,7 +230,8 @@
 
             <select v-if="item.quantity > 1" v-model="personItems[selectedPersonIndex][item.name].quantity"
               class="p-2 border rounded w-20" :disabled="!personItems[selectedPersonIndex][item.name].selected">
-              <option v-for="qty in item.quantity" :key="qty" :value="qty">{{ qty }}</option>
+              <option v-for="qty in getAvailableQuantity(item.name, selectedPersonIndex)" :key="qty" :value="qty">{{ qty
+              }}</option>
             </select>
 
             <div class="w-24 text-right">
@@ -251,36 +259,20 @@
           </div>
         </div>
 
-        <button @click="savePersonItems"
-          class="flex justify-center items-center gap-2 bg-primary-light dark:bg-primary-dark mt-6 p-3 rounded-xl w-full font-bold text-white text-sm">
-          Save
-        </button>
-      </div>
-    </div>
-
-    <!-- Person Name Modal -->
-    <div v-if="showNameModal"
-      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
-      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-sm">
-        <div class="flex justify-between items-center mb-8">
-          <h3 class="font-bold text-lg">Enter Name</h3>
-          <button @click="closeNameModal" class="text-gray-400 hover:text-red-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <div class="flex flex-col gap-3 mt-6">
+          <button @click="savePersonItems"
+            class="flex justify-center items-center gap-2 bg-primary-light dark:bg-primary-dark p-3 rounded-xl w-full font-bold text-white text-sm">
+            Save
+          </button>
+          <button @click="markAsPaid(selectedPersonIndex)" :class="[
+            'flex justify-center items-center gap-2 p-3 rounded-xl w-full font-bold text-sm',
+            people[selectedPersonIndex].paid
+              ? 'bg-green-500 text-white'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+          ]">
+            {{ people[selectedPersonIndex].paid ? 'Paid' : 'Mark as Paid' }}
           </button>
         </div>
-        <div class="flex flex-col gap-3">
-          <div>
-            <input v-model="nameInput" type="text" class="p-3 border rounded-lg focus:outline-blue-200 w-full"
-              placeholder="Enter name" />
-          </div>
-        </div>
-        <button @click="saveName"
-          class="flex justify-center items-center gap-2 bg-primary-light dark:bg-primary-dark mt-6 p-3 rounded-xl w-full font-bold text-white text-sm">
-          Save
-        </button>
       </div>
     </div>
   </div>
@@ -304,6 +296,7 @@ interface NewItem {
 interface Person {
   items: string[];
   name: string;
+  paid: boolean;
 }
 
 const items = useState<BillItem[]>('items', () => []);
@@ -316,7 +309,7 @@ const deliveryFeeIncluded = ref(false);
 // People counter and bill splitting
 const numberOfPeople = ref(1);
 const splitEqually = ref(true);
-const people = ref<Person[]>([{ items: [], name: '' }]);
+const people = ref<Person[]>([{ items: [], name: '', paid: false }]);
 
 // Modal state for add item
 const showAddModal = ref(false);
@@ -377,7 +370,7 @@ const saveModalItem = () => {
 
 const incrementPeople = () => {
   numberOfPeople.value++;
-  people.value.push({ items: [], name: '' });
+  people.value.push({ items: [], name: '', paid: false });
 };
 
 const decrementPeople = () => {
@@ -525,6 +518,52 @@ const saveName = () => {
     people.value[selectedNameIndex.value].name = nameInput.value.trim();
     closeNameModal();
   }
+};
+
+const isItemFullySelected = (itemName: string, currentPersonIndex: number): boolean => {
+  const item = items.value.find(i => i.name === itemName);
+  if (!item) return false;
+
+  // Get total quantity selected by others
+  const totalSelected = Object.entries(personItems.value).reduce((sum, [personIndex, items]) => {
+    const index = parseInt(personIndex);
+    if (index === currentPersonIndex) return sum;
+    // Only count if the item is actually selected
+    return sum + (items[itemName]?.selected ? (items[itemName]?.quantity || 0) : 0);
+  }, 0);
+
+  return totalSelected >= item.quantity;
+};
+
+const getAvailableQuantity = (itemName: string, currentPersonIndex: number): number[] => {
+  const item = items.value.find(i => i.name === itemName);
+  if (!item) return [];
+
+  // Get total quantity selected by others
+  const totalSelected = Object.entries(personItems.value).reduce((sum, [personIndex, items]) => {
+    const index = parseInt(personIndex);
+    if (index === currentPersonIndex) return sum;
+    // Only count if the item is actually selected
+    return sum + (items[itemName]?.selected ? (items[itemName]?.quantity || 0) : 0);
+  }, 0);
+
+  const available = item.quantity - totalSelected;
+  return Array.from({ length: available }, (_, i) => i + 1);
+};
+
+const getPersonDisplayName = (index: number): string => {
+  return people.value[index].name || `Person ${index + 1}`;
+};
+
+const markAsPaid = (index: number) => {
+  people.value[index].paid = !people.value[index].paid;
+};
+
+const getPersonButtonClass = (index: number) => {
+  return [
+    'hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center',
+    people.value[index].paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
+  ].join(' ');
 };
 </script>
 
