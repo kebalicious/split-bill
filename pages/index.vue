@@ -63,28 +63,12 @@
             </button>
           </div>
         </div>
-        <div class="mt-4">
+        <div class="my-4">
           <BillUpload v-if="mode === 'upload'" @change-mode="mode = $event" />
           <ManualEntry v-else />
         </div>
       </div>
       <!-- </section> -->
-      <!-- Right: Summary Section -->
-      <aside class="flex flex-col bg-card-light dark:bg-card-dark shadow-lg rounded-xl">
-        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">Summary</h2>
-        <div class="my-4 border-t border-dashed"></div>
-        <div class="flex flex-col gap-2">
-          <div class="flex justify-between"><span>Jumlah Item</span><span class="font-semibold">0</span></div>
-          <div class="flex justify-between"><span>Jumlah Keseluruhan</span><span class="font-semibold">RM 0.00</span>
-          </div>
-          <div class="flex justify-between"><span>Bilangan Orang</span><span class="font-semibold">0</span></div>
-          <div class="flex justify-between"><span>Setiap Orang</span><span class="font-semibold">RM 0.00</span></div>
-        </div>
-        <div class="bg-primary-light/10 dark:bg-primary-dark/10 mt-6 p-4 rounded-lg text-center">
-          <span class="block font-bold text-primary-light dark:text-primary-dark text-sm">Baki Perlu Bayar</span>
-          <span class="block mt-2 font-extrabold text-2xl">RM 0.00</span>
-        </div>
-      </aside>
     </main>
   </div>
 </template>

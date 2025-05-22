@@ -160,75 +160,21 @@
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-500">No. of people</span>
-              <div class="flex items-center gap-2">
-                <button @click="decrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                  </svg>
-                </button>
-                <span class="font-medium">{{ numberOfPeople }}</span>
-                <button @click="incrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
 
-          <div class="flex flex-col gap-2">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-500">Split bill equally?</span>
-              <label class="inline-flex relative items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer" v-model="splitEqually">
-                <div
-                  class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
-                </div>
-              </label>
+            <div v-if="splitEqually">
+              <div class="mb-2 text-gray-500">Each person pays:</div>
+              <div class="font-bold text-xl">{{ formatPrice(getRoundedAmount(grandTotal / numberOfPeople)) }}</div>
+              <div class="mt-1 text-gray-500 text-sm">Rounded by: {{ formatPrice(getRoundingAmount(grandTotal / numberOfPeople)) }}</div>
             </div>
 
-            <div v-if="!splitEqually" class="flex flex-col gap-3">
-              <div v-for="(person, index) in people" :key="index" class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                  <span class="text-gray-500">Person {{ index + 1 }}</span>
-                  <div class="flex items-center gap-2">
-                    <button @click="removePerson(index)"
-                      class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <div v-for="item in items" :key="item.name" class="flex items-center gap-2">
-                    <input type="checkbox" :id="`${index}-${item.name}`" v-model="person.items" :value="item.name"
-                      class="w-4 h-4">
-                    <label :for="`${index}-${item.name}`" class="text-sm">{{ item.name }}</label>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-gray-500 text-sm">Status:</span>
-                  <div v-if="isPersonComplete(index)" class="text-green-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div v-else class="text-yellow-500 animate-spin">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </div>
-                </div>
+            <div v-else class="mt-4">
+              <div class="mb-2 text-gray-500">Select items for each person:</div>
+              <div class="gap-4 grid grid-cols-2 sm:grid-cols-4">
+                <button v-for="(_, index) in Array(numberOfPeople)" :key="index" @click="openPersonModal(index)"
+                  class="hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center">
+                  <div class="mb-1 font-bold text-lg">[{{ index + 1 }}]</div>
+                  <div class="text-gray-500 text-sm">{{ formatPrice(getPersonTotal(index)) }}</div>
+                </button>
               </div>
             </div>
           </div>
@@ -273,6 +219,66 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
           </svg>
           <span class="font-medium">Save</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Person Items Modal -->
+    <div v-if="showPersonModal"
+      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 text-sm">
+      <div class="relative bg-white dark:bg-card-dark shadow-lg mx-2 p-6 rounded-xl w-full max-w-lg">
+        <div class="flex justify-between items-center mb-8">
+          <h3 class="font-bold text-lg">Person {{ selectedPersonIndex + 1 }} Items</h3>
+          <button @click="closePersonModal" class="text-gray-400 hover:text-red-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div v-for="item in items" :key="item.name" class="flex items-center gap-4 p-3 border rounded-lg">
+            <input type="checkbox" :id="`person-${selectedPersonIndex}-${item.name}`"
+              v-model="personItems[selectedPersonIndex][item.name].selected" class="w-4 h-4">
+
+            <label :for="`person-${selectedPersonIndex}-${item.name}`" class="flex-1">
+              {{ item.name }}
+            </label>
+
+            <select v-if="item.quantity > 1" v-model="personItems[selectedPersonIndex][item.name].quantity"
+              class="p-2 border rounded w-20" :disabled="!personItems[selectedPersonIndex][item.name].selected">
+              <option v-for="qty in item.quantity" :key="qty" :value="qty">{{ qty }}</option>
+            </select>
+
+            <div class="w-24 text-right">
+              {{ formatPrice(item.price * (personItems[selectedPersonIndex][item.name].quantity || 1)) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-gray-500">Subtotal:</span>
+            <span class="font-bold">{{ formatPrice(getPersonSubtotal(selectedPersonIndex)) }}</span>
+          </div>
+          <div v-if="serviceTaxIncluded" class="flex justify-between items-center mb-4">
+            <span class="text-gray-500">Service Tax ({{ numberOfPeople }} people):</span>
+            <span>{{ formatPrice(serviceTaxInput / numberOfPeople) }}</span>
+          </div>
+          <div v-if="deliveryFeeIncluded" class="flex justify-between items-center mb-4">
+            <span class="text-gray-500">Delivery Fee ({{ numberOfPeople }} people):</span>
+            <span>{{ formatPrice(deliveryFeeInput / numberOfPeople) }}</span>
+          </div>
+          <div class="flex justify-between items-center font-bold text-lg">
+            <span>Total:</span>
+            <span>{{ formatPrice(getPersonTotal(selectedPersonIndex)) }}</span>
+          </div>
+        </div>
+
+        <button @click="savePersonItems"
+          class="flex justify-center items-center gap-2 bg-primary-light dark:bg-primary-dark mt-6 p-3 rounded-xl w-full font-bold text-white text-sm">
+          Save
         </button>
       </div>
     </div>
@@ -404,6 +410,94 @@ watch(deliveryFeeIncluded, (val) => {
     deliveryFeeInput.value = 0;
   }
 });
+
+// Person items modal
+const showPersonModal = ref(false);
+const selectedPersonIndex = ref(0);
+const personItems = ref<Record<number, Record<string, { selected: boolean; quantity: number }>>>({});
+
+// Initialize personItems when numberOfPeople changes
+watch(numberOfPeople, (newValue) => {
+  // Initialize personItems for new people
+  for (let i = 0; i < newValue; i++) {
+    if (!personItems.value[i]) {
+      personItems.value[i] = {};
+      items.value.forEach(item => {
+        personItems.value[i][item.name] = { selected: false, quantity: 1 };
+      });
+    }
+  }
+  // Remove personItems for removed people
+  Object.keys(personItems.value).forEach(key => {
+    if (parseInt(key) >= newValue) {
+      delete personItems.value[parseInt(key)];
+    }
+  });
+});
+
+// Initialize personItems when items change
+watch(items, (newItems) => {
+  Object.keys(personItems.value).forEach(personIndex => {
+    newItems.forEach(item => {
+      if (!personItems.value[parseInt(personIndex)][item.name]) {
+        personItems.value[parseInt(personIndex)][item.name] = { selected: false, quantity: 1 };
+      }
+    });
+    // Remove items that no longer exist
+    Object.keys(personItems.value[parseInt(personIndex)]).forEach(itemName => {
+      if (!newItems.find(item => item.name === itemName)) {
+        delete personItems.value[parseInt(personIndex)][itemName];
+      }
+    });
+  });
+}, { deep: true });
+
+const openPersonModal = (index: number) => {
+  selectedPersonIndex.value = index;
+  showPersonModal.value = true;
+};
+
+const closePersonModal = () => {
+  showPersonModal.value = false;
+};
+
+const getPersonSubtotal = (index: number) => {
+  const personItemSelections = personItems.value[index] || {};
+  return Object.entries(personItemSelections).reduce((sum, [itemName, selection]) => {
+    if (selection.selected) {
+      const item = items.value.find(i => i.name === itemName);
+      if (item) {
+        return sum + (item.price * selection.quantity);
+      }
+    }
+    return sum;
+  }, 0);
+};
+
+const getRoundedAmount = (amount: number): number => {
+  return Math.ceil(amount / 0.05) * 0.05;
+};
+
+const getRoundingAmount = (amount: number): number => {
+  return getRoundedAmount(amount) - amount;
+};
+
+const getPersonTotal = (index: number) => {
+  const subtotal = getPersonSubtotal(index);
+  const serviceTaxShare = serviceTaxIncluded.value ? serviceTaxInput.value / numberOfPeople.value : 0;
+  const deliveryFeeShare = deliveryFeeIncluded.value ? deliveryFeeInput.value / numberOfPeople.value : 0;
+  return getRoundedAmount(subtotal + serviceTaxShare + deliveryFeeShare);
+};
+
+const savePersonItems = () => {
+  // Update the person's items in the people array
+  const selectedItems = Object.entries(personItems.value[selectedPersonIndex.value])
+    .filter(([_, selection]) => selection.selected)
+    .map(([itemName]) => itemName);
+
+  people.value[selectedPersonIndex.value].items = selectedItems;
+  closePersonModal();
+};
 </script>
 
 <style scoped>
