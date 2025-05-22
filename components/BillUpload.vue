@@ -1,53 +1,61 @@
 <template>
   <div>
-    <div
-      class="relative flex flex-col justify-center items-center bg-card-light hover:bg-primary-light/10 dark:hover:bg-primary-dark/10 dark:bg-card-dark mb-6 border-2 border-primary-light dark:border-primary-dark border-dashed rounded-xl outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark min-h-[260px] transition-colors duration-200 cursor-pointer"
-      @click="triggerFileInput"
-      @dragover.prevent="onDragOver"
-      @dragleave.prevent="onDragLeave"
-      @drop.prevent="onDrop"
-      :class="{ 'ring-2 ring-primary-light dark:ring-primary-dark': isDragging }"
-      tabindex="0"
-    >
-      <input
-        ref="fileInput"
-        type="file"
-        class="hidden"
-        @change="handleFileUpload"
-        accept="image/*,application/pdf"
-        :disabled="isLoading"
-      />
-      <div class="flex flex-col justify-center items-center pointer-events-none select-none">
-        <svg class="mb-2 w-12 h-12 text-primary-light dark:text-primary-dark" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
-        </svg>
-        <span class="font-medium text-text-light dark:text-text-dark text-sm">Click or drag to upload bill/receipt</span>
-        <span class="mt-1 text-text-light/60 dark:text-text-dark/60 text-xs">(JPG, PNG, PDF)</span>
-      </div>
-      <div v-if="isLoading" class="z-10 absolute inset-0 flex justify-center items-center bg-card-light/80 dark:bg-card-dark/80 rounded-xl">
-        <span class="font-semibold text-primary-light dark:text-primary-dark animate-pulse">Analyzing image...</span>
+    <div class="bg-yellow-50 dark:bg-yellow-900/20 mb-6 p-4 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-500" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <p class="text-yellow-700 dark:text-yellow-300 text-sm">This feature is not available for a while.</p>
       </div>
     </div>
-    <div v-if="error" class="mb-4 text-red-500 text-sm">{{ error }}</div>
-    <div v-if="items.length > 0" class="bill-details">
-      <h3 class="mb-2 font-bold text-sm">Extracted Items:</h3>
-      <table class="mb-2 w-full text-sm">
-        <thead>
-          <tr>
-            <th class="py-1 text-left">Item</th>
-            <th class="py-1 text-left">Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in items" :key="index">
-            <td class="py-1">{{ item.name }}</td>
-            <td class="py-1">{{ formatPrice(item.price) }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="mt-2 pt-2 border-gray-200 dark:border-gray-700 border-t bill-summary">
-        <p>Service Tax: {{ formatPrice(serviceTax) }}</p>
-        <p class="font-bold text-sm">Grand Total: {{ formatPrice(grandTotal) }}</p>
+
+    <div class="hidden">
+      <div
+        class="relative flex flex-col justify-center items-center bg-card-light hover:bg-primary-light/10 dark:hover:bg-primary-dark/10 dark:bg-card-dark mb-6 border-2 border-primary-light dark:border-primary-dark border-dashed rounded-xl outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark min-h-[260px] transition-colors duration-200 cursor-pointer"
+        @click="triggerFileInput" @dragover.prevent="onDragOver" @dragleave.prevent="onDragLeave" @drop.prevent="onDrop"
+        :class="{ 'ring-2 ring-primary-light dark:ring-primary-dark': isDragging }" tabindex="0">
+        <input ref="fileInput" type="file" class="hidden" @change="handleFileUpload" accept="image/*,application/pdf"
+          :disabled="isLoading" />
+        <div class="flex flex-col justify-center items-center pointer-events-none select-none">
+          <svg class="mb-2 w-12 h-12 text-primary-light dark:text-primary-dark" fill="none" stroke="currentColor"
+            stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
+          </svg>
+          <span class="font-medium text-text-light dark:text-text-dark text-sm">Click or drag to upload
+            bill/receipt</span>
+          <span class="mt-1 text-text-light/60 dark:text-text-dark/60 text-xs">(JPG, PNG, PDF)</span>
+        </div>
+        <div v-if="isLoading"
+          class="z-10 absolute inset-0 flex justify-center items-center bg-card-light/80 dark:bg-card-dark/80 rounded-xl">
+          <span class="font-semibold text-primary-light dark:text-primary-dark animate-pulse">Analyzing image...</span>
+        </div>
+      </div>
+      <div v-if="error" class="mb-4 text-red-500 text-sm">{{ error }}</div>
+      <div v-if="items.length > 0" class="bill-details">
+        <h3 class="mb-2 font-bold text-sm">Extracted Items:</h3>
+        <table class="mb-2 w-full text-sm">
+          <thead>
+            <tr>
+              <th class="py-1 text-left">Item</th>
+              <th class="py-1 text-left">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in items" :key="index">
+              <td class="py-1">{{ item.name }}</td>
+              <td class="py-1">{{ formatPrice(item.price) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-2 pt-2 border-gray-200 dark:border-gray-700 border-t bill-summary">
+          <p>Service Tax: {{ formatPrice(serviceTax) }}</p>
+          <p class="font-bold text-sm">Grand Total: {{ formatPrice(grandTotal) }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -187,4 +195,4 @@ const formatPrice = (price: number): string => {
   font-weight: bold;
   font-size: 1.2rem;
 }
-</style> 
+</style>

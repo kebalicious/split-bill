@@ -8,7 +8,7 @@
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-2xl tracking-tight">Split Bill</h1>
             <span
-              class="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full font-bold text-yellow-800 dark:text-yellow-200 text-xs">ALPHA</span>
+              class="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full font-bold text-yellow-800 dark:text-yellow-200 text-xs">BETA</span>
           </div>
           <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm">{{ $t('subtitle') }}</p>
         </div>
