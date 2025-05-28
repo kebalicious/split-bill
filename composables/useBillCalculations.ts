@@ -1,5 +1,5 @@
 // composables/useBillCalculations.ts
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useState } from '#imports';
 
 interface Item {
@@ -24,16 +24,18 @@ export const currencies = {
 };
 
 export function useBillCalculations() {
-  // Shared state
-  const items = ref<Item[]>([]);
-  const serviceTaxInput = ref(0);
-  const deliveryFeeInput = ref(0);
-  const numberOfPeople = ref(1);
-  const splitEqually = ref(true);
-  const people = ref<Person[]>([{ items: [], name: '', paid: false }]);
-  const serviceTaxType = ref<'amount' | 'percentage'>('percentage');
-  const serviceTaxIncluded = ref(false);
-  const deliveryFeeIncluded = ref(false);
+  // Shared state using useState
+  const items = useState<Item[]>('items', () => []);
+  const serviceTaxInput = useState<number>('serviceTaxInput', () => 0);
+  const deliveryFeeInput = useState<number>('deliveryFeeInput', () => 0);
+  const otherChargesInput = useState<number>('otherChargesInput', () => 0);
+  const numberOfPeople = useState<number>('numberOfPeople', () => 1);
+  const splitEqually = useState<boolean>('splitEqually', () => true);
+  const people = useState<Person[]>('people', () => [{ items: [], name: '', paid: false }]);
+  const serviceTaxType = useState<'amount' | 'percentage'>('serviceTaxType', () => 'percentage');
+  const serviceTaxIncluded = useState<boolean>('serviceTaxIncluded', () => false);
+  const deliveryFeeIncluded = useState<boolean>('deliveryFeeIncluded', () => false);
+  const otherChargesIncluded = useState<boolean>('otherChargesIncluded', () => false);
   const selectedCurrency = useState<string>('selectedCurrency', () => 'MYR');
 
   // Format price function
@@ -51,7 +53,8 @@ export function useBillCalculations() {
         : serviceTaxInput.value)
       : 0;
     const deliveryFee = deliveryFeeIncluded.value ? deliveryFeeInput.value : 0;
-    return subtotal + serviceTax + deliveryFee;
+    const otherCharges = otherChargesIncluded.value ? otherChargesInput.value : 0;
+    return subtotal + serviceTax + deliveryFee + otherCharges;
   });
 
   // Rounding functions
@@ -90,12 +93,14 @@ export function useBillCalculations() {
     items,
     serviceTaxInput,
     deliveryFeeInput,
+    otherChargesInput,
     numberOfPeople,
     splitEqually,
     people,
     serviceTaxType,
     serviceTaxIncluded,
     deliveryFeeIncluded,
+    otherChargesIncluded,
     selectedCurrency,
     formatPrice,
     grandTotal,

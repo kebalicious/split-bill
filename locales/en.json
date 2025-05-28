@@ -18,6 +18,8 @@
   "serviceTax": "Service Tax",
   "deliveryFeeIncluded": "Is delivery fee included?",
   "deliveryFee": "Delivery Fee",
+  "otherCharges": "Other Charges",
+  "otherChargesIncluded": "Is other charges included?",
   "grandTotal": "Grand Total",
   "splitBillTitle": "Choose how you would like to split the bill",
   "numberOfPeople": "No. of people",

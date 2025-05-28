@@ -67,7 +67,7 @@
             </label>
 
             <select v-if="item.quantity > 1" v-model="personItems[selectedPersonIndex][item.name].quantity"
-              class="p-2 border rounded w-20" :disabled="!personItems[selectedPersonIndex][item.name].selected">
+              class="p-2 border rounded w-20 text-gray-900 text-center" :disabled="!personItems[selectedPersonIndex][item.name].selected">
               <option v-for="qty in getAvailableQuantity(item.name, selectedPersonIndex)" :key="qty" :value="qty">{{ qty
                 }}</option>
             </select>

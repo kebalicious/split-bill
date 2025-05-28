@@ -37,16 +37,23 @@
                 <input v-model="editItem.name" type="text"
                   class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-full text-gray-900"
                   :placeholder="$t('itemName')" />
-                <input v-model="editItem.price" type="number"
-                  class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
-                  placeholder="0.00" />
-                <button @click="saveEditItem(index)" class="p-1 text-green-600 hover:text-green-700">
+                <div class="relative">
+                  <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2">
+                    {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                  </span>
+                  <input v-model="editItem.price" type="number"
+                    class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
+                    placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                </div>
+                <button @click="saveEditItem(index)"
+                  class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-green-600 hover:text-green-700">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </button>
-                <button @click="cancelEdit" class="p-1 text-red-600 hover:text-red-700">
+                <button @click="cancelEdit"
+                  class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-red-600 hover:text-red-700">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -59,9 +66,9 @@
             </template>
           </div>
           <div class="w-20 sm:w-24 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
-          <div class="flex items-center gap-2 ml-2">
+          <div class="flex items-center gap-2">
             <button v-if="editingItemIndex !== index" @click="startEdit(index)"
-              class="text-gray-400 hover:text-blue-600">
+              class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -69,7 +76,7 @@
               </svg>
             </button>
             <button v-if="editingItemIndex !== index" @click="deleteItem(index)"
-              class="text-gray-400 hover:text-red-600">
+              class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-red-600">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -95,34 +102,43 @@
         <div v-else class="flex items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
           <div class="flex items-center gap-2 w-20 sm:w-24">
             <button @click="decrementNewItemQuantity" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
               </svg>
             </button>
             <span class="w-[1rem] font-medium text-center">{{ newItem.quantity }}</span>
             <button @click="incrementNewItemQuantity" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
             </button>
           </div>
           <div class="flex-1">
             <div class="flex items-center gap-2">
-              <input v-model="newItem.name" type="text" 
+              <input v-model="newItem.name" type="text"
                 class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-full text-gray-900"
                 :placeholder="$t('itemName')" />
-              <input v-model="newItem.price" type="number" 
-                class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
-                placeholder="0.00" />
-              <button @click="saveNewItem" 
-                class="p-1 text-green-600 hover:text-green-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="relative">
+                <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2">
+                  {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                </span>
+                <input v-model="newItem.price" type="number"
+                  class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
+                  placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+              </div>
+              <button @click="saveNewItem"
+                class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-green-600 hover:text-green-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
               </button>
-              <button @click="cancelAddItem" 
-                class="p-1 text-red-600 hover:text-red-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button @click="cancelAddItem"
+                class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-red-600 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -149,35 +165,52 @@
                     </div>
                   </label>
                 </div>
-                <div v-if="serviceTaxIncluded"
-                  class="flex justify-between items-center bg-white dark:bg-white p-3 border rounded-lg">
-                  <label for="serviceTax" class="block w-1/2 font-medium text-gray-900 cursor-pointer">{{
-                    $t('serviceTax')
+                <div v-if="serviceTaxIncluded" class="flex justify-between items-center">
+                  <label for="serviceTax"
+                    class="block w-1/3 font-medium text-gray-900 dark:text-white cursor-pointer">{{
+                      $t('serviceTax')
                     }}</label>
-                  <div class="relative w-1/2">
-                    <div class="top-1/2 left-0 absolute flex items-center gap-1 pl-2 -translate-y-1/2">
-                      <button @click="serviceTaxType = 'amount'" :class="[
-                        'px-2 py-1 text-xs rounded w-12',
-                        serviceTaxType === 'amount'
-                          ? 'bg-primary-light dark:bg-primary-dark text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                      ]">
-                        {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
-                      </button>
-                      <button @click="serviceTaxType = 'percentage'" :class="[
-                        'px-2 py-1 text-xs rounded w-12',
-                        serviceTaxType === 'percentage'
-                          ? 'bg-primary-light dark:bg-primary-dark text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                      ]">
-                        %
-                      </button>
+                  <div class="w-1/3"></div>
+                  <div class="relative flex justify-end w-1/3">
+                    <div class="flex items-center gap-2">
+                      <div class="flex items-center gap-1">
+                        <button @click="serviceTaxType = 'amount'" :class="[
+                          'px-2 py-1 text-xs rounded w-12',
+                          serviceTaxType === 'amount'
+                            ? 'bg-primary-light dark:bg-primary-dark text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                        ]">
+                          {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                        </button>
+                        <button @click="serviceTaxType = 'percentage'" :class="[
+                          'px-2 py-1 text-xs rounded w-12',
+                          serviceTaxType === 'percentage'
+                            ? 'bg-primary-light dark:bg-primary-dark text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                        ]">
+                          %
+                        </button>
+                      </div>
+                      <div class="relative">
+                        <template v-if="serviceTaxType === 'amount'">
+                          <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2 pointer-events-none">
+                            {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                          </span>
+                          <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="999.99"
+                            step="0.01"
+                            class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
+                            placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                        </template>
+                        <template v-else>
+                          <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="100"
+                            step="0.01"
+                            class="bg-white dark:bg-white p-2 pr-8 pl-2 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
+                            placeholder="0" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                          <span
+                            class="top-1/2 right-2 absolute text-gray-500 -translate-y-1/2 pointer-events-none">%</span>
+                        </template>
+                      </div>
                     </div>
-                    <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0"
-                      :max="serviceTaxType === 'percentage' ? '100' : '999.99'" step="0.01"
-                      class="bg-white dark:bg-white pl-28 outline-none w-full text-gray-900 text-end"
-                      :placeholder="serviceTaxType === 'percentage' ? '0%' : '0.00'"
-                      @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
                   </div>
                 </div>
               </div>
@@ -194,14 +227,55 @@
                     </div>
                   </label>
                 </div>
-                <div v-if="deliveryFeeIncluded"
-                  class="flex justify-between items-center bg-white dark:bg-white p-3 border rounded-lg">
-                  <label for="deliveryFee" class="block w-1/2 font-medium text-gray-900 cursor-pointer">{{
-                    $t('deliveryFee')
+                <div v-if="deliveryFeeIncluded" class="flex justify-between items-center">
+                  <label for="deliveryFee"
+                    class="block w-1/3 font-medium text-gray-900 dark:text-white cursor-pointer">{{
+                      $t('deliveryFee')
                     }}</label>
-                  <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99"
-                    step="0.01" class="bg-white dark:bg-white outline-none w-1/2 text-gray-900 text-end"
-                    placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                  <div class="w-1/3"></div>
+                  <div class="relative flex justify-end w-1/3">
+                    <div class="relative">
+                      <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2 pointer-events-none">
+                        {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                      </span>
+                      <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99"
+                        step="0.01"
+                        class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
+                        placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400">{{
+                  $t('otherChargesIncluded')
+                    }}</span>
+                  <label class="inline-flex relative items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" v-model="otherChargesIncluded">
+                    <div
+                      class="peer after:top-[2px] after:left-[2px] after:absolute bg-gray-200 after:bg-white dark:bg-gray-700 dark:peer-checked:bg-primary-dark peer-checked:bg-primary-light after:border after:border-gray-300 dark:border-gray-600 peer-checked:after:border-white rounded-full after:rounded-full peer-focus:outline-none dark:peer-focus:ring-blue-800 peer-focus:ring-4 peer-focus:ring-blue-300 w-11 after:w-5 h-6 after:h-5 after:content-[''] after:transition-all peer-checked:after:translate-x-full">
+                    </div>
+                  </label>
+                </div>
+                <div v-if="otherChargesIncluded" class="flex justify-between items-center">
+                  <label for="otherCharges"
+                    class="block w-1/3 font-medium text-gray-900 dark:text-white cursor-pointer">{{
+                      $t('otherCharges')
+                    }}</label>
+                  <div class="w-1/3"></div>
+                  <div class="relative flex justify-end w-1/3">
+                    <div class="relative">
+                      <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2 pointer-events-none">
+                        {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                      </span>
+                      <input id="otherCharges" v-model.number="otherChargesInput" type="number" min="0" max="999.99"
+                        step="0.01"
+                        class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
+                        placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -279,7 +353,7 @@
                 numberOfPeople)) }}</div>
               <div class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ $t('roundedBy') }}: {{
                 formatPrice(getRoundingAmount(grandTotal /
-                numberOfPeople)) }}</div>
+                  numberOfPeople)) }}</div>
             </div>
             <div v-else>
               <div class="flex flex-col gap-4">
@@ -289,7 +363,7 @@
                 ]">
                   <div class="mb-1 text-gray-500 dark:text-gray-400 text-sm">{{ person.name || `${$t('person')} ${index
                     + 1}`
-                    }}</div>
+                  }}</div>
                   <div class="font-bold text-gray-900 dark:text-white text-lg">{{ formatPrice(getPersonTotal(index,
                     personItems)) }}</div>
                   <div v-if="person.paid" class="top-2 right-2 absolute text-green-500">
@@ -342,7 +416,8 @@
             </label>
 
             <select v-if="item.quantity > 1" v-model="personItems[selectedPersonIndex][item.name].quantity"
-              class="p-2 border rounded w-20 text-gray-900" :disabled="!personItems[selectedPersonIndex][item.name].selected">
+              class="p-2 border rounded w-20 text-gray-900 text-center"
+              :disabled="!personItems[selectedPersonIndex][item.name].selected">
               <option v-for="qty in getAvailableQuantity(item.name, selectedPersonIndex)" :key="qty" :value="qty">{{ qty
               }}</option>
             </select>
@@ -373,7 +448,7 @@
           <div class="flex justify-between items-center font-bold text-lg">
             <span class="text-gray-900 dark:text-white">Total:</span>
             <span class="text-gray-900 dark:text-white">{{ formatPrice(getPersonTotal(selectedPersonIndex, personItems))
-              }}</span>
+            }}</span>
           </div>
         </div>
 
@@ -391,32 +466,40 @@
             {{ people[selectedPersonIndex].paid ? 'Paid' : 'Mark as Paid' }}
           </button>
           <div class="flex gap-2">
-            <button @click="downloadReceipt(selectedPersonIndex)" 
+            <button @click="downloadReceipt(selectedPersonIndex)"
               class="flex flex-1 justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl font-bold text-gray-700 dark:text-gray-300 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Download
             </button>
             <button @click="saveAsPNG(selectedPersonIndex)"
               class="flex flex-1 justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl font-bold text-gray-700 dark:text-gray-300 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               PNG
             </button>
             <button @click="saveAsPDF(selectedPersonIndex)"
               class="flex flex-1 justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl font-bold text-gray-700 dark:text-gray-300 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
               PDF
             </button>
           </div>
           <button @click="shareViaEmail(selectedPersonIndex)"
             class="flex justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl w-full font-bold text-gray-700 dark:text-gray-300 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             Share via Email
           </button>
@@ -430,15 +513,6 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useBillCalculations } from '~/composables/useBillCalculations';
 import html2canvas from 'html2canvas';
-<<<<<<< HEAD
-import { useI18n } from 'vue-i18n';
-import pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-
-// Initialize pdfMake with fonts
-if (typeof window !== 'undefined') {
-  (pdfMake as any).vfs = (pdfFonts as any).vfs;
-=======
 import { saveAs } from 'file-saver';
 import { useI18n } from 'vue-i18n';
 import type { TDocumentDefinitions } from 'pdfmake/interfaces';
@@ -455,7 +529,6 @@ if (process.client) {
     pdfFonts = module.default;
     pdfMake.vfs = pdfFonts.pdfMake.vfs;
   });
->>>>>>> 76c620beb86548a14a765e58f44e5278a6280bcf
 }
 
 interface Item {
@@ -481,12 +554,14 @@ const {
   items,
   serviceTaxInput,
   deliveryFeeInput,
+  otherChargesInput,
   numberOfPeople,
   splitEqually,
   people,
   serviceTaxType,
   serviceTaxIncluded,
   deliveryFeeIncluded,
+  otherChargesIncluded,
   selectedCurrency,
   formatPrice,
   grandTotal,
@@ -736,6 +811,12 @@ watch(deliveryFeeIncluded, (val) => {
   }
 });
 
+watch(otherChargesIncluded, (val) => {
+  if (!val) {
+    otherChargesInput.value = 0;
+  }
+});
+
 const isValidNewItem = computed(() => {
   return newItem.value.name.trim() !== '' && newItem.value.price > 0
 })
@@ -868,7 +949,7 @@ const saveAsPNG = async (personIndex: number) => {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
   document.body.appendChild(tempDiv);
-  
+
   try {
     const canvas = await html2canvas(tempDiv);
     canvas.toBlob((blob: Blob | null) => {
@@ -882,83 +963,6 @@ const saveAsPNG = async (personIndex: number) => {
 };
 
 const saveAsPDF = async (personIndex: number) => {
-<<<<<<< HEAD
-  const content = generateReceiptContent(personIndex);
-  const docDefinition = {
-    content: [
-      { text: 'Receipt', style: 'header' },
-      { text: content.date, style: 'subheader' },
-      { text: content.personName, style: 'subheader' },
-      {
-        table: {
-          headerRows: 1,
-          widths: ['*', 'auto'],
-          body: [
-            [
-              { text: 'Item', style: 'tableHeader' },
-              { text: 'Amount', style: 'tableHeader' }
-            ],
-            ...content.items.map(item => [
-              { text: `${item.name} x${item.quantity}` },
-              { text: formatPrice(item.total), alignment: 'right' as const }
-            ]),
-            [
-              { text: 'Subtotal:', style: 'tableHeader' },
-              { text: formatPrice(content.subtotal), alignment: 'right' as const }
-            ],
-            ...(content.serviceTax > 0 ? [[
-              { text: 'Service Tax:', style: 'tableHeader' },
-              { text: formatPrice(content.serviceTax), alignment: 'right' as const }
-            ]] : []),
-            ...(content.deliveryFee > 0 ? [[
-              { text: 'Delivery Fee:', style: 'tableHeader' },
-              { text: formatPrice(content.deliveryFee), alignment: 'right' as const }
-            ]] : []),
-            [
-              { text: 'Total:', style: 'totalHeader' },
-              { text: formatPrice(content.total), style: 'totalAmount', alignment: 'right' as const }
-            ]
-          ]
-        }
-      }
-    ],
-    styles: {
-      header: {
-        fontSize: 18,
-        bold: true,
-        margin: [0, 0, 0, 10] as [number, number, number, number],
-        alignment: 'center' as const
-      },
-      subheader: {
-        fontSize: 14,
-        bold: true,
-        margin: [0, 10, 0, 5] as [number, number, number, number],
-        alignment: 'left' as const
-      },
-      tableHeader: {
-        bold: true,
-        fontSize: 12,
-        color: 'black',
-        margin: [0, 5, 0, 5] as [number, number, number, number],
-        alignment: 'left' as const
-      },
-      totalHeader: {
-        bold: true,
-        fontSize: 14,
-        margin: [0, 10, 0, 5] as [number, number, number, number]
-      },
-      totalAmount: {
-        bold: true,
-        fontSize: 14,
-        margin: [0, 10, 0, 5] as [number, number, number, number]
-      }
-    }
-  };
-
-  pdfMake.createPdf(docDefinition).getBlob((blob: Blob) => {
-    downloadFile(blob, `receipt-${content.personName}.pdf`);
-  });
-=======
   try {
     if (!pdfMake) {
       const pdfMakeModule = await import('pdfmake/build/pdfmake');
@@ -969,7 +973,7 @@ const saveAsPDF = async (personIndex: number) => {
     }
 
     const content = generateReceiptContent(personIndex);
-    
+
     const docDefinition: TDocumentDefinitions = {
       content: [
         { text: 'Receipt', style: 'header' },
@@ -1048,14 +1052,13 @@ const saveAsPDF = async (personIndex: number) => {
   } catch (error) {
     console.error('Error generating PDF:', error);
   }
->>>>>>> 76c620beb86548a14a765e58f44e5278a6280bcf
 };
 
 const shareViaEmail = (personIndex: number) => {
   const content = generateReceiptContent(personIndex);
   const subject = `Receipt for ${content.personName}`;
   const body = `Please find attached the receipt for ${content.personName}.\n\nTotal amount: ${formatPrice(content.total)}`;
-  
+
   const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href = mailtoLink;
 };

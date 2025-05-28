@@ -12,9 +12,9 @@
         </div>
         <div class="flex gap-2">
           <select v-model="selectedCurrency" 
-            class="bg-white dark:bg-card-dark px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark text-gray-900 dark:text-white text-sm">
+            class="flex justify-center items-center self-start md:self-center bg-card-light hover:bg-primary-light dark:hover:bg-primary-dark dark:bg-card-dark px-4 py-2 rounded-xl w-auto h-10 font-medium text-primary-light hover:text-card-light dark:hover:text-card-dark dark:text-primary-dark text-sm transition-all duration-300 cursor-pointer">
             <option v-for="(currency, code) in currencies" :key="code" :value="code">
-              {{ code }} - {{ currency.name }}
+              {{ code }}
             </option>
           </select>
           <button @click="toggleLanguage"
@@ -116,15 +116,7 @@ const toggleLanguage = () => {
   setLocale(locale.value === 'en' ? 'ms' : 'en');
 };
 
-const { selectedCurrency } = useBillCalculations();
-
-// Currency configuration
-const currencies = {
-  MYR: { symbol: 'RM', name: 'Malaysian Ringgit' },
-  SGD: { symbol: 'S$', name: 'Singapore Dollar' },
-  USD: { symbol: '$', name: 'US Dollar' },
-  GBP: { symbol: '£', name: 'British Pound Sterling' }
-};
+const { selectedCurrency, currencies } = useBillCalculations();
 
 onMounted(() => {
   themeStore.initTheme();
