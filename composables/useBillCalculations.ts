@@ -1,6 +1,6 @@
 // composables/useBillCalculations.ts
 import { computed } from 'vue';
-import { useState } from '#imports';
+import { useState, watch } from '#imports';
 
 interface Item {
   name: string;
@@ -24,8 +24,22 @@ export const currencies = {
 };
 
 export function useBillCalculations() {
-  // Shared state using useState
-  const items = useState<Item[]>('items', () => []);
+  // Shared state using useState with localStorage persistence
+  const items = useState<Item[]>('items', () => {
+    if (process.client) {
+      const savedItems = localStorage.getItem('billItems');
+      return savedItems ? JSON.parse(savedItems) : [];
+    }
+    return [];
+  });
+
+  // Watch for changes in items and save to localStorage
+  if (process.client) {
+    watch(items, (newItems) => {
+      localStorage.setItem('billItems', JSON.stringify(newItems));
+    }, { deep: true });
+  }
+
   const serviceTaxInput = useState<number>('serviceTaxInput', () => 0);
   const deliveryFeeInput = useState<number>('deliveryFeeInput', () => 0);
   const otherChargesInput = useState<number>('otherChargesInput', () => 0);
@@ -59,7 +73,7 @@ export function useBillCalculations() {
 
   // Rounding functions
   const getRoundedAmount = (amount: number) => {
-    return Math.ceil(amount);
+    return Math.round(amount * 20) / 20;
   };
 
   const getRoundingAmount = (amount: number) => {
@@ -80,13 +94,22 @@ export function useBillCalculations() {
   // Calculate per-person total
   const getPersonTotal = (personIndex: number, personItems: Record<number, Record<string, { selected: boolean; quantity: number }>>) => {
     const subtotal = getPersonSubtotal(personIndex, personItems);
-    const serviceTax = serviceTaxIncluded.value
+    
+    // Calculate total service tax, delivery fee, and other charges for all items
+    const totalSubtotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const totalServiceTax = serviceTaxIncluded.value
       ? (serviceTaxType.value === 'percentage'
-        ? (subtotal * serviceTaxInput.value) / 100
-        : serviceTaxInput.value / numberOfPeople.value)
+        ? (totalSubtotal * serviceTaxInput.value) / 100
+        : serviceTaxInput.value)
       : 0;
-    const deliveryFee = deliveryFeeIncluded.value ? deliveryFeeInput.value / numberOfPeople.value : 0;
-    return subtotal + serviceTax + deliveryFee;
+    const totalDeliveryFee = deliveryFeeIncluded.value ? deliveryFeeInput.value : 0;
+    const totalOtherCharges = otherChargesIncluded.value ? otherChargesInput.value : 0;
+
+    // Divide shared charges equally among all people
+    const sharedCharges = (totalServiceTax + totalDeliveryFee + totalOtherCharges) / numberOfPeople.value;
+    
+    const total = subtotal + sharedCharges;
+    return getRoundedAmount(total);
   };
 
   return {

@@ -19,7 +19,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                 </svg>
               </button>
-              <span class="w-[1rem] font-medium text-center">{{ item.quantity }}</span>
+              <span class="w-[1rem] font-medium text-center">{{ editItem.quantity }}</span>
               <button @click="incrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
@@ -66,7 +66,7 @@
             </template>
           </div>
           <div class="w-20 sm:w-24 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 ml-4">
             <button v-if="editingItemIndex !== index" @click="startEdit(index)"
               class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
@@ -175,7 +175,7 @@
                     <div class="flex items-center gap-2">
                       <div class="flex items-center gap-1">
                         <button @click="serviceTaxType = 'amount'" :class="[
-                          'px-2 py-1 text-xs rounded w-12',
+                          'px-2 py-2 text-xs rounded-lg w-12 h-[38px]',
                           serviceTaxType === 'amount'
                             ? 'bg-primary-light dark:bg-primary-dark text-white'
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
@@ -183,7 +183,7 @@
                           {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
                         </button>
                         <button @click="serviceTaxType = 'percentage'" :class="[
-                          'px-2 py-1 text-xs rounded w-12',
+                          'px-2 py-2 text-xs rounded-lg w-12 h-[38px]',
                           serviceTaxType === 'percentage'
                             ? 'bg-primary-light dark:bg-primary-dark text-white'
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
@@ -284,7 +284,9 @@
           <div class="flex justify-between font-bold text-base"><span class="text-gray-900 dark:text-white">{{
             $t('grandTotal')
               }}</span><span class="text-gray-900 dark:text-white">{{
-                formatPrice(grandTotal) }}</span></div>
+                formatPrice(getRoundedAmount(grandTotal)) }}</span></div>
+          <div class="mt-1 text-gray-400 text-sm">{{ $t('roundedBy') }}: {{ formatPrice(getRoundingAmount(grandTotal))
+          }}</div>
         </div>
       </div>
 
@@ -343,7 +345,23 @@
       </div>
 
       <div class="sm:hidden block bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
-        <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
+        <div class="flex justify-between items-center">
+          <h2 class="font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
+          <div class="flex items-center gap-2">
+            <button @click="saveAsPNG(selectedPersonIndex)"
+              class="flex justify-center items-center bg-gray-100 dark:bg-gray-700 px-2 py-2 rounded-lg w-8 h-8 text-gray-600 dark:text-gray-300 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+            <button @click="shareViaEmail(selectedPersonIndex)"
+              class="flex justify-center items-center bg-gray-100 dark:bg-gray-700 px-2 py-2 rounded-lg w-8 h-8 text-gray-600 dark:text-gray-300 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
+          </div>
+        </div>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
@@ -466,7 +484,7 @@
             {{ people[selectedPersonIndex].paid ? 'Paid' : 'Mark as Paid' }}
           </button>
           <div class="flex gap-2">
-            <button @click="downloadReceipt(selectedPersonIndex)"
+            <button @click="saveAsPNG(selectedPersonIndex)"
               class="flex flex-1 justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl font-bold text-gray-700 dark:text-gray-300 text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -484,25 +502,16 @@
               </svg>
               PNG
             </button>
-            <button @click="saveAsPDF(selectedPersonIndex)"
-              class="flex flex-1 justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl font-bold text-gray-700 dark:text-gray-300 text-sm">
+            <button @click="shareViaEmail(selectedPersonIndex)"
+              class="flex flex-1 justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl w-full font-bold text-gray-700 dark:text-gray-300 text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              PDF
+              Share via Email
             </button>
           </div>
-          <button @click="shareViaEmail(selectedPersonIndex)"
-            class="flex justify-center items-center gap-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl w-full font-bold text-gray-700 dark:text-gray-300 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            Share via Email
-          </button>
         </div>
       </div>
     </div>
@@ -512,24 +521,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useBillCalculations } from '~/composables/useBillCalculations';
-import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { useI18n } from 'vue-i18n';
-import type { TDocumentDefinitions } from 'pdfmake/interfaces';
-
-// Dynamic imports for pdfMake
-let pdfMake: any;
-let pdfFonts: any;
-
-if (process.client) {
-  import('pdfmake/build/pdfmake').then((module) => {
-    pdfMake = module.default;
-    return import('pdfmake/build/vfs_fonts');
-  }).then((module) => {
-    pdfFonts = module.default;
-    pdfMake.vfs = pdfFonts.pdfMake.vfs;
-  });
-}
 
 interface Item {
   name: string
@@ -685,12 +678,12 @@ const deleteItem = (index: number) => {
 };
 
 const incrementQuantity = (index: number) => {
-  items.value[index].quantity++;
+  editItem.value.quantity++;
 };
 
 const decrementQuantity = (index: number) => {
-  if (items.value[index].quantity > 1) {
-    items.value[index].quantity--;
+  if (editItem.value.quantity > 1) {
+    editItem.value.quantity--;
   }
 };
 
@@ -845,83 +838,202 @@ interface ReceiptContent {
 
 const { t } = useI18n();
 
-const generateReceiptContent = (personIndex: number): ReceiptContent => {
-  const person = people.value[personIndex];
-  const personName = person.name || `${t('person')} ${personIndex + 1}`;
-  const receiptItems = person.items.map(itemName => {
-    const item = items.value.find(i => i.name === itemName);
-    if (!item) return null;
-    const quantity = personItems.value[personIndex][itemName]?.quantity || 1;
-    return {
-      name: item.name,
-      price: item.price,
-      quantity,
-      total: item.price * quantity
-    };
-  }).filter((item): item is ReceiptItem => item !== null);
+const saveAsPNG = async (personIndex: number) => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-  const subtotal = getPersonSubtotal(personIndex, personItems.value);
-  const serviceTax = serviceTaxIncluded.value
-    ? (serviceTaxType.value === 'percentage'
-      ? (subtotal * serviceTaxInput.value) / 100
-      : serviceTaxInput.value / numberOfPeople.value)
-    : 0;
-  const deliveryFee = deliveryFeeIncluded.value ? deliveryFeeInput.value / numberOfPeople.value : 0;
-  const total = getPersonTotal(personIndex, personItems.value);
-
-  return {
-    personName,
-    items: receiptItems,
-    subtotal,
-    serviceTax,
-    deliveryFee,
-    total,
-    date: new Date().toLocaleDateString()
+  // Receipt style settings
+  const width = 420;
+  let y = 40;
+  const lineHeight = 28;
+  const leftPad = 32;
+  const rightPad = width - 32;
+  const mono = '16px "Fira Mono", "Consolas", "Menlo", monospace';
+  const monoBold = 'bold 18px "Fira Mono", "Consolas", "Menlo", monospace';
+  const monoSmall = 'italic 14px "Fira Mono", "Consolas", "Menlo", monospace';
+  const sectionGap = 18;
+  const dash = () => {
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = '#bbb';
+    ctx.beginPath();
+    ctx.moveTo(leftPad, y);
+    ctx.lineTo(rightPad, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+    y += 12;
   };
+
+  // Estimate height
+  let estHeight = 600 + (items.value.length * 20) + (people.value.length * 40);
+  canvas.width = width;
+  canvas.height = estHeight;
+
+  // White background
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, width, canvas.height);
+
+  // Title
+  ctx.font = monoBold;
+  ctx.fillStyle = '#222';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPLIT BILL RECEIPT', width / 2, y);
+  y += lineHeight;
+
+  // Date
+  ctx.font = mono;
+  ctx.fillStyle = '#444';
+  ctx.fillText(new Date().toLocaleDateString(), width / 2, y);
+  y += lineHeight - 8;
+
+  dash();
+
+  // Items
+  ctx.textAlign = 'left';
+  ctx.font = mono;
+  ctx.fillStyle = '#222';
+  ctx.fillText('Items:', leftPad, y);
+  y += lineHeight - 8;
+  items.value.forEach((item: Item) => {
+    ctx.fillText(`${item.name} x${item.quantity}`, leftPad, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(formatPrice(item.price * item.quantity), rightPad, y);
+    ctx.textAlign = 'left';
+    y += 22;
+  });
+  y += 4;
+  dash();
+
+  // Subtotal, taxes, fees
+  ctx.font = mono;
+  ctx.fillStyle = '#222';
+  ctx.fillText('Subtotal', leftPad, y);
+  ctx.textAlign = 'right';
+  ctx.fillText(formatPrice(items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)), rightPad, y);
+  ctx.textAlign = 'left';
+  y += 22;
+  if (serviceTaxIncluded.value) {
+    const subtotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const serviceTax = serviceTaxType.value === 'percentage'
+      ? (subtotal * serviceTaxInput.value) / 100
+      : serviceTaxInput.value;
+    ctx.fillText('Service Tax', leftPad, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(formatPrice(serviceTax), rightPad, y);
+    ctx.textAlign = 'left';
+    y += 22;
+  }
+  if (deliveryFeeIncluded.value) {
+    ctx.fillText('Delivery Fee', leftPad, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(formatPrice(deliveryFeeInput.value), rightPad, y);
+    ctx.textAlign = 'left';
+    y += 22;
+  }
+  if (otherChargesIncluded.value) {
+    ctx.fillText('Other Charges', leftPad, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(formatPrice(otherChargesInput.value), rightPad, y);
+    ctx.textAlign = 'left';
+    y += 22;
+  }
+  dash();
+
+  // Grand total
+  ctx.font = monoBold;
+  ctx.fillStyle = '#111';
+  ctx.fillText('GRAND TOTAL', leftPad, y);
+  ctx.textAlign = 'right';
+  ctx.fillText(formatPrice(grandTotal.value), rightPad, y);
+  ctx.textAlign = 'left';
+  y += lineHeight;
+
+  // Rounding
+  ctx.font = monoSmall;
+  ctx.fillStyle = '#666';
+  ctx.fillText(`Rounding to: ${formatPrice(getRoundingAmount(grandTotal.value))}`, leftPad, y);
+  y += sectionGap;
+  dash();
+
+  // People & split info
+  ctx.font = mono;
+  ctx.fillStyle = '#222';
+  ctx.textAlign = 'left';
+  ctx.fillText(`No. of people: ${numberOfPeople.value}`, leftPad, y);
+  y += 22;
+  ctx.fillText(`Split equally: ${splitEqually.value ? 'Yes' : 'No'}`, leftPad, y);
+  y += sectionGap;
+  dash();
+
+  if (splitEqually.value) {
+    ctx.font = monoBold;
+    ctx.fillStyle = '#111';
+    ctx.fillText('EACH PERSON PAYS', leftPad, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(formatPrice(getRoundedAmount(grandTotal.value / numberOfPeople.value)), rightPad, y);
+    ctx.textAlign = 'left';
+    y += lineHeight;
+    ctx.font = monoSmall;
+    ctx.fillStyle = '#666';
+    ctx.fillText(`Rounding to: ${formatPrice(getRoundingAmount(grandTotal.value / numberOfPeople.value))}`, leftPad, y);
+    y += sectionGap;
+  } else {
+    ctx.font = monoBold;
+    ctx.fillStyle = '#111';
+    ctx.fillText('INDIVIDUAL BREAKDOWN', leftPad, y);
+    y += lineHeight - 8;
+    people.value.forEach((person: Person, index: number) => {
+      ctx.font = mono;
+      ctx.fillStyle = '#222';
+      ctx.fillText(`${person.name || `Person ${index + 1}`}:`, leftPad + 10, y);
+      y += 20;
+      person.items.forEach(itemName => {
+        const item = items.value.find(i => i.name === itemName);
+        if (!item) return;
+        const quantity = personItems.value[index][itemName]?.quantity || 1;
+        ctx.font = mono;
+        ctx.fillText(`  ${item.name} x${quantity}`, leftPad + 20, y);
+        ctx.textAlign = 'right';
+        ctx.fillText(formatPrice(item.price * quantity), rightPad, y);
+        ctx.textAlign = 'left';
+        y += 18;
+      });
+      ctx.font = monoBold;
+      ctx.fillStyle = '#111';
+      ctx.fillText('  Total:', leftPad + 20, y);
+      ctx.textAlign = 'right';
+      ctx.fillText(formatPrice(getPersonTotal(index, personItems.value)), rightPad, y);
+      ctx.textAlign = 'left';
+      y += sectionGap;
+    });
+  }
+
+  dash();
+  ctx.font = monoSmall;
+  ctx.fillStyle = '#888';
+  ctx.textAlign = 'center';
+  ctx.fillText('Thank you for using Split Bill!', width / 2, y + 20);
+
+  // Download
+  canvas.toBlob((blob: Blob | null) => {
+    if (blob) {
+      const person = people.value[personIndex];
+      const personName = person.name || `Person ${personIndex + 1}`;
+      downloadFile(blob, `receipt-${personName}.png`);
+    }
+  });
 };
 
-const generateReceiptHTML = (content: ReturnType<typeof generateReceiptContent>) => {
-  return `
-    <div class="bg-white mx-auto p-6 max-w-md receipt">
-      <div class="mb-4 text-center">
-        <h1 class="font-bold text-xl">Receipt</h1>
-        <p class="text-gray-600">${content.date}</p>
-      </div>
-      <div class="mb-4">
-        <h2 class="font-bold">${content.personName}</h2>
-      </div>
-      <div class="mb-4 py-4 border-t border-b">
-        ${content.items.map(item => `
-          <div class="flex justify-between mb-2">
-            <span>${item.name} x${item.quantity}</span>
-            <span>${formatPrice(item.total)}</span>
-          </div>
-        `).join('')}
-      </div>
-      <div class="space-y-2">
-        <div class="flex justify-between">
-          <span>Subtotal:</span>
-          <span>${formatPrice(content.subtotal)}</span>
-        </div>
-        ${content.serviceTax > 0 ? `
-          <div class="flex justify-between">
-            <span>Service Tax:</span>
-            <span>${formatPrice(content.serviceTax)}</span>
-          </div>
-        ` : ''}
-        ${content.deliveryFee > 0 ? `
-          <div class="flex justify-between">
-            <span>Delivery Fee:</span>
-            <span>${formatPrice(content.deliveryFee)}</span>
-          </div>
-        ` : ''}
-        <div class="flex justify-between pt-2 border-t font-bold">
-          <span>Total:</span>
-          <span>${formatPrice(content.total)}</span>
-        </div>
-      </div>
-    </div>
-  `;
+const shareViaEmail = (personIndex: number) => {
+  const person = people.value[personIndex];
+  const personName = person.name || `Person ${personIndex + 1}`;
+  const subject = `Receipt for ${personName}`;
+  const body = `Please find attached the receipt for ${personName}.\n\nTotal amount: ${formatPrice(getPersonTotal(personIndex, personItems.value))}`;
+
+  const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoLink;
 };
 
 // Helper function to download file
@@ -936,133 +1048,6 @@ const downloadFile = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-const downloadReceipt = async (personIndex: number) => {
-  const content = generateReceiptContent(personIndex);
-  const html = generateReceiptHTML(content);
-  const blob = new Blob([html], { type: 'text/html' });
-  downloadFile(blob, `receipt-${content.personName}.html`);
-};
-
-const saveAsPNG = async (personIndex: number) => {
-  const content = generateReceiptContent(personIndex);
-  const html = generateReceiptHTML(content);
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = html;
-  document.body.appendChild(tempDiv);
-
-  try {
-    const canvas = await html2canvas(tempDiv);
-    canvas.toBlob((blob: Blob | null) => {
-      if (blob) {
-        downloadFile(blob, `receipt-${content.personName}.png`);
-      }
-    });
-  } finally {
-    document.body.removeChild(tempDiv);
-  }
-};
-
-const saveAsPDF = async (personIndex: number) => {
-  try {
-    if (!pdfMake) {
-      const pdfMakeModule = await import('pdfmake/build/pdfmake');
-      pdfMake = pdfMakeModule.default;
-      const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
-      pdfFonts = pdfFontsModule.default;
-      pdfMake.vfs = pdfFonts.pdfMake.vfs;
-    }
-
-    const content = generateReceiptContent(personIndex);
-
-    const docDefinition: TDocumentDefinitions = {
-      content: [
-        { text: 'Receipt', style: 'header' },
-        { text: content.date, style: 'subheader' },
-        { text: content.personName, style: 'subheader' },
-        {
-          table: {
-            headerRows: 1,
-            widths: ['*', 'auto'],
-            body: [
-              [
-                { text: 'Item', style: 'tableHeader' },
-                { text: 'Amount', style: 'tableHeader' }
-              ],
-              ...content.items.map(item => [
-                { text: `${item.name} x${item.quantity}` },
-                { text: formatPrice(item.total), alignment: 'right' as const }
-              ]),
-              [
-                { text: 'Subtotal:', style: 'tableHeader' },
-                { text: formatPrice(content.subtotal), alignment: 'right' as const }
-              ],
-              ...(content.serviceTax > 0 ? [[
-                { text: 'Service Tax:', style: 'tableHeader' },
-                { text: formatPrice(content.serviceTax), alignment: 'right' as const }
-              ]] : []),
-              ...(content.deliveryFee > 0 ? [[
-                { text: 'Delivery Fee:', style: 'tableHeader' },
-                { text: formatPrice(content.deliveryFee), alignment: 'right' as const }
-              ]] : []),
-              [
-                { text: 'Total:', style: 'totalHeader' },
-                { text: formatPrice(content.total), style: 'totalAmount', alignment: 'right' as const }
-              ]
-            ]
-          }
-        }
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10] as [number, number, number, number],
-          alignment: 'center' as const
-        },
-        subheader: {
-          fontSize: 14,
-          bold: true,
-          margin: [0, 10, 0, 5] as [number, number, number, number],
-          alignment: 'left' as const
-        },
-        tableHeader: {
-          bold: true,
-          fontSize: 12,
-          color: 'black',
-          margin: [0, 5, 0, 5] as [number, number, number, number],
-          alignment: 'left' as const
-        },
-        totalHeader: {
-          bold: true,
-          fontSize: 14,
-          margin: [0, 10, 0, 5] as [number, number, number, number]
-        },
-        totalAmount: {
-          bold: true,
-          fontSize: 14,
-          margin: [0, 10, 0, 5] as [number, number, number, number]
-        }
-      }
-    };
-
-    const pdfDoc = pdfMake.createPdf(docDefinition);
-    pdfDoc.getBlob((blob: Blob) => {
-      saveAs(blob, `receipt-${content.personName}.pdf`);
-    });
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-  }
-};
-
-const shareViaEmail = (personIndex: number) => {
-  const content = generateReceiptContent(personIndex);
-  const subject = `Receipt for ${content.personName}`;
-  const body = `Please find attached the receipt for ${content.personName}.\n\nTotal amount: ${formatPrice(content.total)}`;
-
-  const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailtoLink;
-};
-
 const mounted = ref(false);
 
 onMounted(() => {
@@ -1071,6 +1056,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Hide number input arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .entry-form {
   margin-bottom: 2rem;
   padding: 1rem;

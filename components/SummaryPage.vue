@@ -1,6 +1,6 @@
 <template>
   <div v-if="mode === 'manual'">
-    <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
+    <div class="hidden sm:block bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
       <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
       <div class="my-4 border-t border-dashed"></div>
       <div class="flex flex-col gap-4 text-sm">
