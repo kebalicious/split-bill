@@ -18,7 +18,7 @@
                 person.paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
               ]">
                 <div class="mb-1 text-gray-500 text-sm">{{ person.name || `${$t('person')} ${index + 1}` }}</div>
-                <div class="font-bold text-lg">{{ formatPrice(getPersonTotal(index)) }}</div>
+                <div class="font-bold text-lg">{{ formatPrice(getPersonTotal(index, personItems)) }}</div>
                 <div v-if="person.paid" class="top-2 right-2 absolute text-green-500">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -86,8 +86,8 @@
           <div v-if="serviceTaxIncluded" class="flex justify-between items-center mb-4">
             <span class="text-gray-500">Service Tax ({{ numberOfPeople }} people):</span>
             <span>{{ formatPrice(getPersonTotal(selectedPersonIndex, personItems) -
-              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded.value ? deliveryFeeInput.value
-                / numberOfPeople.value : 0)) }}</span>
+              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded ? deliveryFeeInput
+                / numberOfPeople : 0)) }}</span>
           </div>
           <div v-if="deliveryFeeIncluded" class="flex justify-between items-center mb-4">
             <span class="text-gray-500">Delivery Fee ({{ numberOfPeople }} people):</span>
@@ -136,12 +136,14 @@ const {
   serviceTaxType,
   serviceTaxIncluded,
   deliveryFeeIncluded,
+  selectedCurrency,
   formatPrice,
   grandTotal,
   getRoundedAmount,
   getRoundingAmount,
   getPersonSubtotal,
-  getPersonTotal
+  getPersonTotal,
+  currencies
 } = useBillCalculations();
 
 // Person items modal

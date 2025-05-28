@@ -1,30 +1,35 @@
 <template>
-  <div>
+  <div v-if="mounted">
     <div class="space-y-4">
       <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('addBillDetails') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 dark:text-white text-sm">
-          <div class="w-12 sm:w-16">{{ $t('quantity') }}</div>
+          <div class="w-20 sm:w-24">{{ $t('quantity') }}</div>
           <div class="flex-1">{{ $t('items') }}</div>
           <div class="w-20 sm:w-24 text-right">{{ $t('price') }}</div>
         </div>
         <div v-for="(item, index) in items" :key="index"
           class="flex items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
-          <div class="flex items-center gap-2 w-12 sm:w-16">
-            <button @click="decrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-              </svg>
-            </button>
-            <span>{{ item.quantity }}</span>
-            <button @click="incrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
+          <div class="flex items-center gap-2 w-20 sm:w-24">
+            <template v-if="editingItemIndex === index">
+              <button @click="decrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+              </button>
+              <span class="w-[1rem] font-medium text-center">{{ item.quantity }}</span>
+              <button @click="incrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </template>
+            <template v-else>
+              <span>{{ item.quantity }}</span>
+            </template>
           </div>
           <div class="flex-1">
             <template v-if="editingItemIndex === index">
@@ -73,7 +78,7 @@
             </button>
           </div>
         </div>
-        <div v-if="items.length === 0"
+        <div v-if="items.length === 0 && !isAddingItem"
           class="flex justify-center items-center pt-8 pb-0 text-gray-500 dark:text-gray-400 text-sm">
           {{ $t('noItemAdded') }}
         </div>
@@ -88,13 +93,13 @@
           <span class="font-medium">{{ $t('addItem') }}</span>
         </div>
         <div v-else class="flex items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
-          <div class="flex items-center gap-2 w-12 sm:w-16">
+          <div class="flex items-center gap-2 w-20 sm:w-24">
             <button @click="decrementNewItemQuantity" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
               </svg>
             </button>
-            <span>{{ newItem.quantity }}</span>
+            <span class="w-[1rem] font-medium text-center">{{ newItem.quantity }}</span>
             <button @click="incrementNewItemQuantity" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -157,7 +162,7 @@
                           ? 'bg-primary-light dark:bg-primary-dark text-white'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                       ]">
-                        RM
+                        {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
                       </button>
                       <button @click="serviceTaxType = 'percentage'" :class="[
                         'px-2 py-1 text-xs rounded w-12',
@@ -223,7 +228,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                   </svg>
                 </button>
-                <span class="w-12 font-medium text-center">{{ numberOfPeople }}</span>
+                <span class="w-[2rem] font-medium text-center">{{ numberOfPeople }}</span>
                 <button @click="incrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -337,7 +342,7 @@
             </label>
 
             <select v-if="item.quantity > 1" v-model="personItems[selectedPersonIndex][item.name].quantity"
-              class="p-2 border rounded w-20" :disabled="!personItems[selectedPersonIndex][item.name].selected">
+              class="p-2 border rounded w-20 text-gray-900" :disabled="!personItems[selectedPersonIndex][item.name].selected">
               <option v-for="qty in getAvailableQuantity(item.name, selectedPersonIndex)" :key="qty" :value="qty">{{ qty
               }}</option>
             </select>
@@ -358,8 +363,8 @@
             <span class="text-gray-500 dark:text-gray-400">Service Tax ({{ numberOfPeople }} people):</span>
             <span class="text-gray-900 dark:text-white">{{ formatPrice(getPersonTotal(selectedPersonIndex, personItems)
               -
-              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded.value ? deliveryFeeInput.value
-                / numberOfPeople.value : 0)) }}</span>
+              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded ? deliveryFeeInput
+                / numberOfPeople : 0)) }}</span>
           </div>
           <div v-if="deliveryFeeIncluded" class="flex justify-between items-center mb-4">
             <span class="text-gray-500 dark:text-gray-400">Delivery Fee ({{ numberOfPeople }} people):</span>
@@ -422,12 +427,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useBillCalculations } from '~/composables/useBillCalculations';
 import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import { saveAs } from 'file-saver';
 import { useI18n } from 'vue-i18n';
+import pdfMake from 'pdfmake/build/pdfmake';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+
+// Initialize pdfMake with fonts
+if (typeof window !== 'undefined') {
+  (pdfMake as any).vfs = (pdfFonts as any).vfs;
+}
 
 interface Item {
   name: string
@@ -448,7 +458,6 @@ interface Person {
   paid: boolean;
 }
 
-// Use composable for shared calculations
 const {
   items,
   serviceTaxInput,
@@ -459,6 +468,7 @@ const {
   serviceTaxType,
   serviceTaxIncluded,
   deliveryFeeIncluded,
+  selectedCurrency,
   formatPrice,
   grandTotal,
   getRoundedAmount,
@@ -466,6 +476,9 @@ const {
   getPersonSubtotal,
   getPersonTotal
 } = useBillCalculations();
+
+// Add currencies import
+const { currencies } = useBillCalculations();
 
 // Add item state
 const isAddingItem = ref(false);
@@ -497,23 +510,23 @@ const cancelAddItem = () => {
 };
 
 const saveNewItem = () => {
-  if (!isValidNewItem.value) return
+  if (!isValidNewItem.value) return;
 
   items.value.push({
     name: newItem.value.name,
     price: newItem.value.price,
     quantity: newItem.value.quantity,
     people: []
-  })
+  });
 
-  isAddingItem.value = false
+  isAddingItem.value = false;
   newItem.value = {
     name: '',
     price: 0,
     quantity: 1,
     people: []
-  }
-}
+  };
+};
 
 const incrementNewItemQuantity = () => {
   newItem.value.quantity++;
@@ -811,11 +824,23 @@ const generateReceiptHTML = (content: ReturnType<typeof generateReceiptContent>)
   `;
 };
 
+// Helper function to download file
+const downloadFile = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 const downloadReceipt = async (personIndex: number) => {
   const content = generateReceiptContent(personIndex);
   const html = generateReceiptHTML(content);
   const blob = new Blob([html], { type: 'text/html' });
-  saveAs(blob, `receipt-${content.personName}.html`);
+  downloadFile(blob, `receipt-${content.personName}.html`);
 };
 
 const saveAsPNG = async (personIndex: number) => {
@@ -829,7 +854,7 @@ const saveAsPNG = async (personIndex: number) => {
     const canvas = await html2canvas(tempDiv);
     canvas.toBlob((blob: Blob | null) => {
       if (blob) {
-        saveAs(blob, `receipt-${content.personName}.png`);
+        downloadFile(blob, `receipt-${content.personName}.png`);
       }
     });
   } finally {
@@ -839,33 +864,96 @@ const saveAsPNG = async (personIndex: number) => {
 
 const saveAsPDF = async (personIndex: number) => {
   const content = generateReceiptContent(personIndex);
-  const html = generateReceiptHTML(content);
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = html;
-  document.body.appendChild(tempDiv);
-  
-  try {
-    const canvas = await html2canvas(tempDiv);
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`receipt-${content.personName}.pdf`);
-  } finally {
-    document.body.removeChild(tempDiv);
-  }
+  const docDefinition = {
+    content: [
+      { text: 'Receipt', style: 'header' },
+      { text: content.date, style: 'subheader' },
+      { text: content.personName, style: 'subheader' },
+      {
+        table: {
+          headerRows: 1,
+          widths: ['*', 'auto'],
+          body: [
+            [
+              { text: 'Item', style: 'tableHeader' },
+              { text: 'Amount', style: 'tableHeader' }
+            ],
+            ...content.items.map(item => [
+              { text: `${item.name} x${item.quantity}` },
+              { text: formatPrice(item.total), alignment: 'right' as const }
+            ]),
+            [
+              { text: 'Subtotal:', style: 'tableHeader' },
+              { text: formatPrice(content.subtotal), alignment: 'right' as const }
+            ],
+            ...(content.serviceTax > 0 ? [[
+              { text: 'Service Tax:', style: 'tableHeader' },
+              { text: formatPrice(content.serviceTax), alignment: 'right' as const }
+            ]] : []),
+            ...(content.deliveryFee > 0 ? [[
+              { text: 'Delivery Fee:', style: 'tableHeader' },
+              { text: formatPrice(content.deliveryFee), alignment: 'right' as const }
+            ]] : []),
+            [
+              { text: 'Total:', style: 'totalHeader' },
+              { text: formatPrice(content.total), style: 'totalAmount', alignment: 'right' as const }
+            ]
+          ]
+        }
+      }
+    ],
+    styles: {
+      header: {
+        fontSize: 18,
+        bold: true,
+        margin: [0, 0, 0, 10] as [number, number, number, number],
+        alignment: 'center' as const
+      },
+      subheader: {
+        fontSize: 14,
+        bold: true,
+        margin: [0, 10, 0, 5] as [number, number, number, number],
+        alignment: 'left' as const
+      },
+      tableHeader: {
+        bold: true,
+        fontSize: 12,
+        color: 'black',
+        margin: [0, 5, 0, 5] as [number, number, number, number],
+        alignment: 'left' as const
+      },
+      totalHeader: {
+        bold: true,
+        fontSize: 14,
+        margin: [0, 10, 0, 5] as [number, number, number, number]
+      },
+      totalAmount: {
+        bold: true,
+        fontSize: 14,
+        margin: [0, 10, 0, 5] as [number, number, number, number]
+      }
+    }
+  };
+
+  pdfMake.createPdf(docDefinition).getBlob((blob: Blob) => {
+    downloadFile(blob, `receipt-${content.personName}.pdf`);
+  });
 };
 
 const shareViaEmail = (personIndex: number) => {
   const content = generateReceiptContent(personIndex);
-  const html = generateReceiptHTML(content);
   const subject = `Receipt for ${content.personName}`;
   const body = `Please find attached the receipt for ${content.personName}.\n\nTotal amount: ${formatPrice(content.total)}`;
   
   const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href = mailtoLink;
 };
+
+const mounted = ref(false);
+
+onMounted(() => {
+  mounted.value = true;
+});
 </script>
 
 <style scoped>

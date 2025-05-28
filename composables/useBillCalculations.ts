@@ -1,5 +1,5 @@
 // composables/useBillCalculations.ts
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useState } from '#imports';
 
 interface Item {
@@ -15,70 +15,75 @@ interface Person {
   paid: boolean;
 }
 
+// Currency configuration
+export const currencies = {
+  MYR: { symbol: 'RM', name: 'Malaysian Ringgit' },
+  SGD: { symbol: 'S$', name: 'Singapore Dollar' },
+  USD: { symbol: '$', name: 'US Dollar' },
+  GBP: { symbol: '£', name: 'British Pound Sterling' }
+};
+
 export function useBillCalculations() {
   // Shared state
-  const items = useState<Item[]>('items', () => []);
-  const serviceTaxInput = useState<number>('serviceTax', () => 0);
-  const deliveryFeeInput = useState<number>('deliveryFee', () => 0);
-  const numberOfPeople = useState<number>('numberOfPeople', () => 1);
-  const splitEqually = useState<boolean>('splitEqually', () => true);
-  const people = useState<Person[]>('people', () => [{ items: [], name: '', paid: false }]);
-  const serviceTaxType = useState<'amount' | 'percentage'>('serviceTaxType', () => 'amount');
-  const serviceTaxIncluded = useState<boolean>('serviceTaxIncluded', () => false);
-  const deliveryFeeIncluded = useState<boolean>('deliveryFeeIncluded', () => false);
+  const items = ref<Item[]>([]);
+  const serviceTaxInput = ref(0);
+  const deliveryFeeInput = ref(0);
+  const numberOfPeople = ref(1);
+  const splitEqually = ref(true);
+  const people = ref<Person[]>([{ items: [], name: '', paid: false }]);
+  const serviceTaxType = ref<'amount' | 'percentage'>('percentage');
+  const serviceTaxIncluded = ref(false);
+  const deliveryFeeIncluded = ref(false);
+  const selectedCurrency = useState<string>('selectedCurrency', () => 'MYR');
 
   // Format price function
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('en-MY', {
-      style: 'currency',
-      currency: 'MYR',
-      minimumFractionDigits: 2
-    }).format(price);
+  const formatPrice = (amount: number) => {
+    const currency = currencies[selectedCurrency.value as keyof typeof currencies];
+    return `${currency.symbol} ${amount.toFixed(2)}`;
   };
 
   // Computed grand total
   const grandTotal = computed(() => {
-    const itemsTotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const serviceTaxAmount = serviceTaxIncluded.value
+    const subtotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const serviceTax = serviceTaxIncluded.value
       ? (serviceTaxType.value === 'percentage'
-        ? (itemsTotal * serviceTaxInput.value) / 100
+        ? (subtotal * serviceTaxInput.value) / 100
         : serviceTaxInput.value)
       : 0;
-    return itemsTotal + serviceTaxAmount + (deliveryFeeIncluded.value ? deliveryFeeInput.value : 0);
+    const deliveryFee = deliveryFeeIncluded.value ? deliveryFeeInput.value : 0;
+    return subtotal + serviceTax + deliveryFee;
   });
 
   // Rounding functions
-  const getRoundedAmount = (amount: number): number => {
-    return Math.ceil(amount / 0.05) * 0.05;
+  const getRoundedAmount = (amount: number) => {
+    return Math.ceil(amount);
   };
 
-  const getRoundingAmount = (amount: number): number => {
+  const getRoundingAmount = (amount: number) => {
     return getRoundedAmount(amount) - amount;
   };
 
   // Calculate per-person subtotal based on personItems
-  const getPersonSubtotal = (index: number, personItems: Record<number, Record<string, { selected: boolean; quantity: number }>> = {}) => {
-    const person = people.value[index];
-    if (!person) return 0;
-    const selections = personItems[index] || {};
-    return person.items.reduce((sum, itemName) => {
-      const item = items.value.find(i => i.name === itemName);
-      if (!item) return sum;
-      const quantity = selections[itemName]?.selected ? (selections[itemName].quantity || 1) : 1;
-      return sum + (item.price * quantity);
+  const getPersonSubtotal = (personIndex: number, personItems: Record<number, Record<string, { selected: boolean; quantity: number }>>) => {
+    return items.value.reduce((sum, item) => {
+      const selection = personItems[personIndex]?.[item.name];
+      if (selection?.selected) {
+        return sum + item.price * selection.quantity;
+      }
+      return sum;
     }, 0);
   };
 
   // Calculate per-person total
-  const getPersonTotal = (index: number, personItems: Record<number, Record<string, { selected: boolean; quantity: number }>> = {}) => {
-    const subtotal = getPersonSubtotal(index, personItems);
-    const serviceTaxShare = serviceTaxIncluded.value
+  const getPersonTotal = (personIndex: number, personItems: Record<number, Record<string, { selected: boolean; quantity: number }>>) => {
+    const subtotal = getPersonSubtotal(personIndex, personItems);
+    const serviceTax = serviceTaxIncluded.value
       ? (serviceTaxType.value === 'percentage'
         ? (subtotal * serviceTaxInput.value) / 100
         : serviceTaxInput.value / numberOfPeople.value)
       : 0;
-    const deliveryFeeShare = deliveryFeeIncluded.value ? deliveryFeeInput.value / numberOfPeople.value : 0;
-    return getRoundedAmount(subtotal + serviceTaxShare + deliveryFeeShare);
+    const deliveryFee = deliveryFeeIncluded.value ? deliveryFeeInput.value / numberOfPeople.value : 0;
+    return subtotal + serviceTax + deliveryFee;
   };
 
   return {
@@ -91,11 +96,13 @@ export function useBillCalculations() {
     serviceTaxType,
     serviceTaxIncluded,
     deliveryFeeIncluded,
+    selectedCurrency,
     formatPrice,
     grandTotal,
     getRoundedAmount,
     getRoundingAmount,
     getPersonSubtotal,
-    getPersonTotal
+    getPersonTotal,
+    currencies
   };
 }
