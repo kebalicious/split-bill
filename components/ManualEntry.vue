@@ -10,80 +10,97 @@
           <div class="w-20 sm:w-24 text-right">{{ $t('price') }}</div>
         </div>
         <div v-for="(item, index) in items" :key="index"
-          class="flex items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
-          <div class="flex items-center gap-2 w-20 sm:w-24">
+          class="flex md:flex-row flex-col items-start md:items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
+          <div class="md:flex-1 w-full">
             <template v-if="editingItemIndex === index">
-              <button @click="decrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                </svg>
-              </button>
-              <span class="w-[1rem] font-medium text-center">{{ editItem.quantity }}</span>
-              <button @click="incrementQuantity(index)" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            </template>
-            <template v-else>
-              <span>{{ item.quantity }}</span>
-            </template>
-          </div>
-          <div class="flex-1">
-            <template v-if="editingItemIndex === index">
-              <div class="flex items-center gap-2">
-                <input v-model="editItem.name" type="text"
-                  class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-full text-gray-900"
-                  :placeholder="$t('itemName')" />
-                <div class="relative">
-                  <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2">
-                    {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
-                  </span>
-                  <input v-model="editItem.price" type="number"
-                    class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
-                    placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+              <div class="flex md:flex-row flex-col items-start md:items-center gap-2">
+                <div class="flex md:flex-row flex-col gap-2 w-full md:w-auto">
+                  <div class="flex items-center gap-2">
+                    <span class="md:hidden w-1/3 text-gray-500">Quantity:</span>
+                    <div class="flex items-center gap-2 w-2/3 md:w-auto">
+                      <button @click="decrementQuantity(index)"
+                        class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                          stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                        </svg>
+                      </button>
+                      <span class="w-[1rem] font-medium text-center">{{ editItem.quantity }}</span>
+                      <button @click="incrementQuantity(index)"
+                        class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                          stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="md:hidden w-1/3 text-gray-500">Item name:</span>
+                    <input v-model="editItem.name" type="text"
+                      class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-2/3 md:w-48 text-gray-900"
+                      :placeholder="$t('itemName')" />
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="md:hidden w-1/3 text-gray-500">Price:</span>
+                    <div class="relative w-2/3 md:w-auto">
+                      <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2">
+                        {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                      </span>
+                      <input v-model="editItem.price" type="number"
+                        class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-full md:w-24 text-gray-900 text-end"
+                        placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                    </div>
+                  </div>
                 </div>
-                <button @click="saveEditItem(index)"
-                  class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-green-600 hover:text-green-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </button>
-                <button @click="cancelEdit"
-                  class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-red-600 hover:text-red-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <div class="flex gap-2 w-full md:w-auto">
+                  <button @click="saveEditItem(index)"
+                    class="flex justify-center items-center bg-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 sm:bg-none p-1 rounded-lg w-1/2 sm:w-auto text-green-600 hover:text-green-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                  <button @click="cancelEdit"
+                    class="flex justify-center items-center bg-red-300 hover:bg-gray-100 dark:hover:bg-gray-700 sm:bg-none p-1 rounded-lg w-1/2 sm:w-auto text-red-600 hover:text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </template>
             <template v-else>
-              {{ item.name }}
+              <div class="flex justify-between items-center w-full">
+                <div class="flex items-center">
+                  <div class="w-20 sm:w-24">
+                    <span>{{ item.quantity }}</span>
+                  </div>
+                  <div class="flex-1">{{ item.name }}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button @click="startEdit(index)"
+                    class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button @click="deleteItem(index)"
+                    class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </template>
           </div>
-          <div class="w-20 sm:w-24 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
-          <div class="flex items-center gap-2 ml-4">
-            <button v-if="editingItemIndex !== index" @click="startEdit(index)"
-              class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-            <button v-if="editingItemIndex !== index" @click="deleteItem(index)"
-              class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-gray-400 hover:text-red-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-          </div>
+          <div class="hidden md:block w-20 sm:w-24 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
         </div>
         <div v-if="items.length === 0 && !isAddingItem"
           class="flex justify-center items-center pt-8 pb-0 text-gray-500 dark:text-gray-400 text-sm">
@@ -99,52 +116,68 @@
           </svg>
           <span class="font-medium">{{ $t('addItem') }}</span>
         </div>
-        <div v-else class="flex items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
-          <div class="flex items-center gap-2 w-20 sm:w-24">
-            <button @click="decrementNewItemQuantity" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-              </svg>
-            </button>
-            <span class="w-[1rem] font-medium text-center">{{ newItem.quantity }}</span>
-            <button @click="incrementNewItemQuantity" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <input v-model="newItem.name" type="text"
-                class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-full text-gray-900"
-                :placeholder="$t('itemName')" />
-              <div class="relative">
-                <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2">
-                  {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
-                </span>
-                <input v-model="newItem.price" type="number"
-                  class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-24 text-gray-900 text-end"
-                  placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+        <div v-else
+          class="flex md:flex-row flex-col items-start md:items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
+          <div class="md:flex-1 w-full">
+            <div class="flex md:flex-row flex-col items-start md:items-center gap-2">
+              <div class="flex md:flex-row flex-col gap-2 w-full md:w-auto">
+                <div class="flex items-center gap-2">
+                  <span class="md:hidden w-1/3 text-gray-500">Quantity:</span>
+                  <div class="flex items-center gap-2 w-2/3 md:w-auto">
+                    <button @click="decrementNewItemQuantity"
+                      class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                      </svg>
+                    </button>
+                    <span class="w-[1rem] font-medium text-center">{{ newItem.quantity }}</span>
+                    <button @click="incrementNewItemQuantity"
+                      class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="md:hidden w-1/3 text-gray-500">Item name:</span>
+                  <input v-model="newItem.name" type="text"
+                    class="bg-white dark:bg-white p-2 border rounded-lg focus:outline-blue-200 w-2/3 md:w-48 text-gray-900"
+                    :placeholder="$t('itemName')" />
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="md:hidden w-1/3 text-gray-500">Price:</span>
+                  <div class="relative w-2/3 md:w-auto">
+                    <span class="top-1/2 left-2 absolute text-gray-500 -translate-y-1/2">
+                      {{ currencies[selectedCurrency as keyof typeof currencies].symbol }}
+                    </span>
+                    <input v-model="newItem.price" type="number"
+                      class="bg-white dark:bg-white p-2 pl-8 border rounded-lg focus:outline-blue-200 w-full md:w-24 text-gray-900 text-end"
+                      placeholder="0.00" @focus="(e: FocusEvent) => (e.target as HTMLInputElement).value = ''" />
+                  </div>
+                </div>
               </div>
-              <button @click="saveNewItem"
-                class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-green-600 hover:text-green-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </button>
-              <button @click="cancelAddItem"
-                class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg text-red-600 hover:text-red-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div class="flex gap-2 w-full md:w-auto">
+                <button @click="saveNewItem"
+                  class="flex justify-center items-center bg-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 sm:bg-none p-1 rounded-lg w-1/2 sm:w-auto text-green-600 hover:text-green-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <button @click="cancelAddItem"
+                  class="flex justify-center items-center bg-red-300 hover:bg-gray-100 dark:hover:bg-gray-700 sm:bg-none p-1 rounded-lg w-1/2 sm:w-auto text-red-600 hover:text-red-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="w-20 sm:w-24 text-right">{{ formatPrice(newItem.price * newItem.quantity) }}</div>
+          <div class="hidden md:block w-20 sm:w-24 text-right">{{ formatPrice(newItem.price * newItem.quantity) }}</div>
         </div>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-1 text-sm">
@@ -344,20 +377,24 @@
         </div>
       </div>
 
-      <div class="sm:hidden block bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
+      <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <div class="flex justify-between items-center">
           <h2 class="font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
           <div class="flex items-center gap-2">
             <button @click="saveAsPNG(selectedPersonIndex)"
-              class="flex justify-center items-center bg-gray-100 dark:bg-gray-700 px-2 py-2 rounded-lg w-8 h-8 text-gray-600 dark:text-gray-300 text-xs">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              class="flex justify-center items-center bg-gray-100 dark:bg-gray-700 px-2 rounded-lg w-8 text-gray-600 dark:text-gray-300 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </button>
             <button @click="shareViaEmail(selectedPersonIndex)"
-              class="flex justify-center items-center bg-gray-100 dark:bg-gray-700 px-2 py-2 rounded-lg w-8 h-8 text-gray-600 dark:text-gray-300 text-xs">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              class="flex justify-center items-center bg-gray-100 dark:bg-gray-700 px-2 rounded-lg w-8 text-gray-600 dark:text-gray-300 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
             </button>
           </div>
@@ -818,236 +855,6 @@ const isValidEditItem = computed(() => {
   return editItem.value.name.trim() !== '' && editItem.value.price > 0
 })
 
-// Receipt generation and sharing functions
-interface ReceiptItem {
-  name: string;
-  price: number;
-  quantity: number;
-  total: number;
-}
-
-interface ReceiptContent {
-  personName: string;
-  items: ReceiptItem[];
-  subtotal: number;
-  serviceTax: number;
-  deliveryFee: number;
-  total: number;
-  date: string;
-}
-
-const { t } = useI18n();
-
-const saveAsPNG = async (personIndex: number) => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  // Receipt style settings
-  const width = 420;
-  let y = 40;
-  const lineHeight = 28;
-  const leftPad = 32;
-  const rightPad = width - 32;
-  const mono = '16px "Fira Mono", "Consolas", "Menlo", monospace';
-  const monoBold = 'bold 18px "Fira Mono", "Consolas", "Menlo", monospace';
-  const monoSmall = 'italic 14px "Fira Mono", "Consolas", "Menlo", monospace';
-  const sectionGap = 18;
-  const dash = () => {
-    ctx.save();
-    ctx.setLineDash([4, 4]);
-    ctx.strokeStyle = '#bbb';
-    ctx.beginPath();
-    ctx.moveTo(leftPad, y);
-    ctx.lineTo(rightPad, y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-    y += 12;
-  };
-
-  // Estimate height
-  let estHeight = 600 + (items.value.length * 20) + (people.value.length * 40);
-  canvas.width = width;
-  canvas.height = estHeight;
-
-  // White background
-  ctx.fillStyle = 'white';
-  ctx.fillRect(0, 0, width, canvas.height);
-
-  // Title
-  ctx.font = monoBold;
-  ctx.fillStyle = '#222';
-  ctx.textAlign = 'center';
-  ctx.fillText('SPLIT BILL RECEIPT', width / 2, y);
-  y += lineHeight;
-
-  // Date
-  ctx.font = mono;
-  ctx.fillStyle = '#444';
-  ctx.fillText(new Date().toLocaleDateString(), width / 2, y);
-  y += lineHeight - 8;
-
-  dash();
-
-  // Items
-  ctx.textAlign = 'left';
-  ctx.font = mono;
-  ctx.fillStyle = '#222';
-  ctx.fillText('Items:', leftPad, y);
-  y += lineHeight - 8;
-  items.value.forEach((item: Item) => {
-    ctx.fillText(`${item.name} x${item.quantity}`, leftPad, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(formatPrice(item.price * item.quantity), rightPad, y);
-    ctx.textAlign = 'left';
-    y += 22;
-  });
-  y += 4;
-  dash();
-
-  // Subtotal, taxes, fees
-  ctx.font = mono;
-  ctx.fillStyle = '#222';
-  ctx.fillText('Subtotal', leftPad, y);
-  ctx.textAlign = 'right';
-  ctx.fillText(formatPrice(items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)), rightPad, y);
-  ctx.textAlign = 'left';
-  y += 22;
-  if (serviceTaxIncluded.value) {
-    const subtotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const serviceTax = serviceTaxType.value === 'percentage'
-      ? (subtotal * serviceTaxInput.value) / 100
-      : serviceTaxInput.value;
-    ctx.fillText('Service Tax', leftPad, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(formatPrice(serviceTax), rightPad, y);
-    ctx.textAlign = 'left';
-    y += 22;
-  }
-  if (deliveryFeeIncluded.value) {
-    ctx.fillText('Delivery Fee', leftPad, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(formatPrice(deliveryFeeInput.value), rightPad, y);
-    ctx.textAlign = 'left';
-    y += 22;
-  }
-  if (otherChargesIncluded.value) {
-    ctx.fillText('Other Charges', leftPad, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(formatPrice(otherChargesInput.value), rightPad, y);
-    ctx.textAlign = 'left';
-    y += 22;
-  }
-  dash();
-
-  // Grand total
-  ctx.font = monoBold;
-  ctx.fillStyle = '#111';
-  ctx.fillText('GRAND TOTAL', leftPad, y);
-  ctx.textAlign = 'right';
-  ctx.fillText(formatPrice(grandTotal.value), rightPad, y);
-  ctx.textAlign = 'left';
-  y += lineHeight;
-
-  // Rounding
-  ctx.font = monoSmall;
-  ctx.fillStyle = '#666';
-  ctx.fillText(`Rounding to: ${formatPrice(getRoundingAmount(grandTotal.value))}`, leftPad, y);
-  y += sectionGap;
-  dash();
-
-  // People & split info
-  ctx.font = mono;
-  ctx.fillStyle = '#222';
-  ctx.textAlign = 'left';
-  ctx.fillText(`No. of people: ${numberOfPeople.value}`, leftPad, y);
-  y += 22;
-  ctx.fillText(`Split equally: ${splitEqually.value ? 'Yes' : 'No'}`, leftPad, y);
-  y += sectionGap;
-  dash();
-
-  if (splitEqually.value) {
-    ctx.font = monoBold;
-    ctx.fillStyle = '#111';
-    ctx.fillText('EACH PERSON PAYS', leftPad, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(formatPrice(getRoundedAmount(grandTotal.value / numberOfPeople.value)), rightPad, y);
-    ctx.textAlign = 'left';
-    y += lineHeight;
-    ctx.font = monoSmall;
-    ctx.fillStyle = '#666';
-    ctx.fillText(`Rounding to: ${formatPrice(getRoundingAmount(grandTotal.value / numberOfPeople.value))}`, leftPad, y);
-    y += sectionGap;
-  } else {
-    ctx.font = monoBold;
-    ctx.fillStyle = '#111';
-    ctx.fillText('INDIVIDUAL BREAKDOWN', leftPad, y);
-    y += lineHeight - 8;
-    people.value.forEach((person: Person, index: number) => {
-      ctx.font = mono;
-      ctx.fillStyle = '#222';
-      ctx.fillText(`${person.name || `Person ${index + 1}`}:`, leftPad + 10, y);
-      y += 20;
-      person.items.forEach(itemName => {
-        const item = items.value.find(i => i.name === itemName);
-        if (!item) return;
-        const quantity = personItems.value[index][itemName]?.quantity || 1;
-        ctx.font = mono;
-        ctx.fillText(`  ${item.name} x${quantity}`, leftPad + 20, y);
-        ctx.textAlign = 'right';
-        ctx.fillText(formatPrice(item.price * quantity), rightPad, y);
-        ctx.textAlign = 'left';
-        y += 18;
-      });
-      ctx.font = monoBold;
-      ctx.fillStyle = '#111';
-      ctx.fillText('  Total:', leftPad + 20, y);
-      ctx.textAlign = 'right';
-      ctx.fillText(formatPrice(getPersonTotal(index, personItems.value)), rightPad, y);
-      ctx.textAlign = 'left';
-      y += sectionGap;
-    });
-  }
-
-  dash();
-  ctx.font = monoSmall;
-  ctx.fillStyle = '#888';
-  ctx.textAlign = 'center';
-  ctx.fillText('Thank you for using Split Bill!', width / 2, y + 20);
-
-  // Download
-  canvas.toBlob((blob: Blob | null) => {
-    if (blob) {
-      const person = people.value[personIndex];
-      const personName = person.name || `Person ${personIndex + 1}`;
-      downloadFile(blob, `receipt-${personName}.png`);
-    }
-  });
-};
-
-const shareViaEmail = (personIndex: number) => {
-  const person = people.value[personIndex];
-  const personName = person.name || `Person ${personIndex + 1}`;
-  const subject = `Receipt for ${personName}`;
-  const body = `Please find attached the receipt for ${personName}.\n\nTotal amount: ${formatPrice(getPersonTotal(personIndex, personItems.value))}`;
-
-  const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailtoLink;
-};
-
-// Helper function to download file
-const downloadFile = (blob: Blob, filename: string) => {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
 const mounted = ref(false);
 
 onMounted(() => {
@@ -1056,110 +863,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Hide number input arrows */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.entry-form {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: var(--card-bg);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.add-button {
-  background: var(--primary-color);
-  color: var(--card-bg);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: opacity 0.3s ease;
-}
-
-.add-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.delete-button {
-  background: var(--error-color);
-  color: white;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: opacity 0.3s ease;
-}
-
-.delete-button:hover {
-  opacity: 0.9;
-}
-
-.bill-summary {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.grand-total {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: var(--text-color);
-}
-
-/* Receipt styles */
-:deep(.receipt) {
-  font-family: system-ui, -apple-system, sans-serif;
-  color: #1a1a1a;
-  line-height: 1.5;
-}
-
-:deep(.receipt h1) {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-:deep(.receipt h2) {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-:deep(.receipt .text-gray-600) {
-  color: #666;
-}
-
-:deep(.receipt .border-t),
-:deep(.receipt .border-b) {
-  border-color: #e5e7eb;
-}
-
-:deep(.receipt .space-y-2 > * + *) {
-  margin-top: 0.5rem;
-}
-
-:deep(.receipt .font-bold) {
-  font-weight: 600;
-}
+/* Add your styles here */
 </style>
