@@ -7,8 +7,6 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-primary-light dark:text-primary-dark text-2xl tracking-tight">Split Bill</h1>
-            <span
-              class="bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full font-bold text-yellow-800 dark:text-yellow-200 text-xs">BETA</span>
           </div>
           <p class="mt-2 text-gray-600 dark:text-gray-300 text-sm">{{ $t('subtitle') }}</p>
         </div>
@@ -31,7 +29,7 @@
     <main class="gap-8 grid grid-cols-1 lg:grid-cols-3 mx-auto px-6 sm:px-0 py-10 w-full max-w-7xl">
       <!-- Left: Input Section -->
       <div class="lg:col-span-2">
-        <div class="bg-card-light dark:bg-card-dark shadow-sm p-4 sm:p-6 rounded-xl">
+        <div class="bg-card-light dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
           <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('chooseHow') }}</h2>
           <div class="my-4 border-t border-dashed"></div>
           <div class="flex gap-4">
@@ -39,7 +37,7 @@
               'px-6 py-3 rounded-xl font-medium border-1 transition-all duration-300 w-full text-sm',
               mode === 'upload'
                 ? 'border-primary-light dark:border-primary-dark bg-primary-light text-card-light dark:bg-primary-dark dark:text-card-dark'
-                : 'border-primary-light dark:border-primary-dark bg-gray-100 text-primary-light dark:bg-card-dark dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
+                : 'border-primary-light dark:border-primary-dark bg-gray-100 text-primary-light dark:bg-gray-700 dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
             ]" @click="() => { mode = 'upload'; clearBillState(); }">
               <svg class="mx-auto mb-2 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -51,7 +49,7 @@
               'px-6 py-3 rounded-xl font-medium border-1 transition-all duration-300 w-full text-sm',
               mode === 'manual'
                 ? 'border-primary-light dark:border-primary-dark bg-primary-light text-card-light dark:bg-primary-dark dark:text-card-dark'
-                : 'border-primary-light dark:border-primary-dark bg-gray-100 text-primary-light dark:bg-card-dark dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
+                : 'border-primary-light dark:border-primary-dark bg-gray-100 text-primary-light dark:bg-gray-700 dark:text-primary-dark hover:bg-primary-light hover:text-card-light dark:hover:bg-primary-dark dark:hover:text-card-dark'
             ]" @click="() => { mode = 'manual'; clearBillState(); }">
               <svg class="mx-auto mb-2 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -69,7 +67,7 @@
       <!-- Right: Summary Section -->
       <div class="lg:col-span-1">
         <div class="top-4 sticky">
-          <SummaryPage />
+          <SummaryPage :mode="mode" />
         </div>
       </div>
     </main>

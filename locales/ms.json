@@ -22,6 +22,7 @@
   "splitBillTitle": "Pilih cara anda mahu bahagikan bil",
   "numberOfPeople": "Bilangan orang",
   "splitEqually": "Bahagikan bil sama rata?",
+  "splitEquallyTooltip": "Bil anda akan dibahagikan sama rata mengikut bilangan orang. Contohnya, RM500 dibahagikan sama rata dengan 4 untuk 4 orang.",
   "eachPersonPays": "Setiap orang perlu bayar:",
   "roundedBy": "Dibundarkan kepada",
   "person": "Orang",

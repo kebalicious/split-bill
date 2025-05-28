@@ -4,18 +4,18 @@
       <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('addBillDetails') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
-        <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 text-sm">
+        <div class="flex mb-0 pt-4 pb-4 border-b font-semibold text-gray-900 dark:text-white text-sm">
           <div class="w-12 sm:w-16">{{ $t('quantity') }}</div>
           <div class="flex-1">{{ $t('items') }}</div>
           <div class="w-20 sm:w-24 text-right">{{ $t('price') }}</div>
         </div>
         <div v-for="(item, index) in items" :key="index"
-          class="flex items-center py-4 border-b last:border-b-0 text-gray-900 text-sm">
+          class="flex items-center py-4 border-b last:border-b-0 text-gray-900 dark:text-white text-sm">
           <div class="w-12 sm:w-16">{{ item.quantity }}</div>
           <div class="flex-1">{{ item.name }}</div>
           <div class="w-20 sm:w-24 text-right">{{ formatPrice(item.price * item.quantity) }}</div>
         </div>
-        <div v-if="items.length === 0" class="flex justify-center items-center pt-8 pb-0 text-gray-500 text-sm">
+        <div v-if="items.length === 0" class="flex justify-center items-center pt-8 pb-0 text-gray-500 dark:text-gray-400 text-sm">
           {{ $t('noItemAdded') }}
         </div>
         <!-- Add Item Row -->
@@ -30,13 +30,14 @@
         </div>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-1 text-sm">
-          <div class="flex justify-between"><span class="text-gray-500">{{ $t('subtotal') }}</span><span>{{
+          <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">{{ $t('subtotal') }}</span><span class="text-gray-900 dark:text-white">{{
             formatPrice(items.reduce((sum, item) => sum + item.price * item.quantity, 0))}}</span></div>
           <div class="my-4 border-t border-dashed"></div>
           <div class="flex flex-col sm:flex-wrap gap-4">
             <div class="flex-1 min-w-[200px]">
               <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('serviceTaxIncluded') }}</span>
+                <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400">{{ $t('serviceTaxIncluded')
+                }}</span>
                   <label class="inline-flex relative items-center cursor-pointer">
                     <input type="checkbox" class="sr-only peer" v-model="serviceTaxIncluded">
                     <div
@@ -45,17 +46,40 @@
                   </label>
                 </div>
                 <div v-if="serviceTaxIncluded"
-                  class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-                  <label for="serviceTax" class="block w-1/2 font-medium cursor-pointer">{{ $t('serviceTax') }}</label>
-                  <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0" max="999.99" step="0.01"
-                    class="outline-none w-1/2 text-end" placeholder="0.00"
-                    @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+                  class="flex justify-between items-center bg-white dark:bg-white p-3 border rounded-lg">
+                  <label for="serviceTax" class="block w-1/2 font-medium text-gray-900 cursor-pointer">{{ $t('serviceTax') }}</label>
+                  <div class="relative w-1/2">
+                    <div class="top-1/2 left-0 absolute flex items-center gap-1 pl-2 -translate-y-1/2">
+                      <button @click="serviceTaxType = 'amount'" :class="[
+                        'px-2 py-1 text-xs rounded w-12',
+                        serviceTaxType === 'amount'
+                          ? 'bg-primary-light dark:bg-primary-dark text-white'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                      ]">
+                        RM
+                      </button>
+                      <button @click="serviceTaxType = 'percentage'" :class="[
+                        'px-2 py-1 text-xs rounded w-12',
+                        serviceTaxType === 'percentage'
+                          ? 'bg-primary-light dark:bg-primary-dark text-white'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                      ]">
+                        %
+                      </button>
+                    </div>
+                    <input id="serviceTax" v-model.number="serviceTaxInput" type="number" min="0"
+                      :max="serviceTaxType === 'percentage' ? '100' : '999.99'" step="0.01"
+                      class="bg-white dark:bg-white pl-28 outline-none w-full text-gray-900 text-end"
+                      :placeholder="serviceTaxType === 'percentage' ? '0%' : '0.00'"
+                      @focus="(e) => (e.target as HTMLInputElement).value = ''" />
+                  </div>
                 </div>
               </div>
             </div>
             <div class="flex-1 min-w-[200px]">
               <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center"><span class="text-gray-500">{{ $t('deliveryFeeIncluded') }}</span>
+                <div class="flex justify-between items-center"><span class="text-gray-500 dark:text-gray-400">{{ $t('deliveryFeeIncluded')
+                }}</span>
                   <label class="inline-flex relative items-center cursor-pointer">
                     <input type="checkbox" class="sr-only peer" v-model="deliveryFeeIncluded">
                     <div
@@ -64,17 +88,18 @@
                   </label>
                 </div>
                 <div v-if="deliveryFeeIncluded"
-                  class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-                  <label for="deliveryFee" class="block w-1/2 font-medium cursor-pointer">{{ $t('deliveryFee') }}</label>
-                  <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99" step="0.01"
-                    class="outline-none w-1/2 text-end" placeholder="0.00"
+                  class="flex justify-between items-center bg-white dark:bg-white p-3 border rounded-lg">
+                  <label for="deliveryFee" class="block w-1/2 font-medium text-gray-900 cursor-pointer">{{ $t('deliveryFee')
+                  }}</label>
+                  <input id="deliveryFee" v-model.number="deliveryFeeInput" type="number" min="0" max="999.99"
+                    step="0.01" class="bg-white dark:bg-white outline-none w-1/2 text-gray-900 text-end" placeholder="0.00"
                     @focus="(e) => (e.target as HTMLInputElement).value = ''" />
                 </div>
               </div>
             </div>
           </div>
           <div class="my-4 border-t border-dashed"></div>
-          <div class="flex justify-between font-bold text-base"><span>{{ $t('grandTotal') }}</span><span>{{
+          <div class="flex justify-between font-bold text-base"><span class="text-gray-900 dark:text-white">{{ $t('grandTotal') }}</span><span class="text-gray-900 dark:text-white">{{
             formatPrice(grandTotal) }}</span></div>
         </div>
       </div>
@@ -93,7 +118,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                   </svg>
                 </button>
-                <span class="font-medium">{{ numberOfPeople }}</span>
+                <span class="w-12 font-medium text-center">{{ numberOfPeople }}</span>
                 <button @click="incrementPeople" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -106,7 +131,22 @@
 
           <div class="flex flex-col gap-2">
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">{{ $t('splitEqually') }}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-500">{{ $t('splitEqually') }}</span>
+                <div class="group relative">
+                  <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                  <div
+                    class="bottom-full left-1/2 absolute bg-gray-900 opacity-0 group-hover:opacity-100 mb-2 p-2 rounded-lg w-64 text-white text-xs leading-6 transition-opacity -translate-x-1/2 duration-200 pointer-events-none transform">
+                    {{ $t('splitEquallyTooltip') }}
+                  </div>
+                </div>
+              </div>
               <label class="inline-flex relative items-center cursor-pointer">
                 <input type="checkbox" class="sr-only peer" v-model="splitEqually">
                 <div
@@ -118,27 +158,25 @@
         </div>
       </div>
 
-      <div class="bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
+      <div class="sm:hidden block bg-white dark:bg-card-dark shadow p-4 sm:p-6 rounded-xl">
         <h2 class="mb-4 font-bold text-md text-text-light dark:text-text-dark">{{ $t('summary') }}</h2>
         <div class="my-4 border-t border-dashed"></div>
         <div class="flex flex-col gap-4 text-sm">
           <div class="flex flex-col gap-2">
-            <div class="mb-2 text-gray-500">{{ $t('eachPersonPays') }}</div>
-
+            <div class="mb-2 text-gray-500 dark:text-gray-400">{{ $t('eachPersonPays') }}</div>
             <div v-if="splitEqually">
-              <div class="font-bold text-xl">{{ formatPrice(getRoundedAmount(grandTotal / numberOfPeople)) }}</div>
-              <div class="mt-1 text-gray-400 text-sm">{{ $t('roundedBy') }}: {{ formatPrice(getRoundingAmount(grandTotal /
+              <div class="font-bold text-gray-900 dark:text-white text-xl">{{ formatPrice(getRoundedAmount(grandTotal / numberOfPeople)) }}</div>
+              <div class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ $t('roundedBy') }}: {{ formatPrice(getRoundingAmount(grandTotal /
                 numberOfPeople)) }}</div>
             </div>
-
             <div v-else>
-              <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+              <div class="flex flex-col gap-4">
                 <button v-for="(person, index) in people" :key="index" @click="openPersonModal(index)" :class="[
                   'hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center relative',
                   person.paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
                 ]">
-                  <div class="mb-1 text-gray-500 text-sm">{{ person.name || `${$t('person')} ${index + 1}` }}</div>
-                  <div class="font-bold text-lg">{{ formatPrice(getPersonTotal(index)) }}</div>
+                  <div class="mb-1 text-gray-500 dark:text-gray-400 text-sm">{{ person.name || `${$t('person')} ${index + 1}` }}</div>
+                  <div class="font-bold text-gray-900 dark:text-white text-lg">{{ formatPrice(getPersonTotal(index, personItems)) }}</div>
                   <div v-if="person.paid" class="top-2 right-2 absolute text-green-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                       stroke="currentColor">
@@ -167,20 +205,20 @@
         </div>
         <div class="flex flex-col gap-3">
           <div>
-            <input v-model="modalItem.name" type="text" class="p-3 border rounded-lg focus:outline-blue-200 w-full"
+            <input v-model="modalItem.name" type="text" class="bg-white dark:bg-white p-3 border rounded-lg focus:outline-blue-200 w-full text-gray-900"
               :placeholder="$t('itemName')" />
           </div>
           <div
-            class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-            <label for="modalPrice" class="block w-1/2 font-medium cursor-pointer">{{ $t('price') }}</label>
-            <input id="modalPrice" v-model="modalItem.price" type="number" class="outline-none w-1/2 text-end"
+            class="flex justify-between items-center bg-white dark:bg-white p-3 border rounded-lg">
+            <label for="modalPrice" class="block w-1/2 font-medium text-gray-900 cursor-pointer">{{ $t('price') }}</label>
+            <input id="modalPrice" v-model="modalItem.price" type="number" class="bg-white dark:bg-white outline-none w-1/2 text-gray-900 text-end"
               placeholder="0.00" />
           </div>
           <div
-            class="flex justify-between items-center p-3 border rounded-lg focus-within:outline focus-within:outline-2 focus-within:outline-blue-400">
-            <label for="modalQuantity" class="block w-1/2 font-medium cursor-pointer">{{ $t('quantity') }}</label>
+            class="flex justify-between items-center bg-white dark:bg-white p-3 border rounded-lg">
+            <label for="modalQuantity" class="block w-1/2 font-medium text-gray-900 cursor-pointer">{{ $t('quantity') }}</label>
             <input id="modalQuantity" v-model.number="modalItem.quantity" type="number" min="1" step="1"
-              class="outline-none w-1/2 text-end" placeholder="1" />
+              class="bg-white dark:bg-white outline-none w-1/2 text-gray-900 text-end" placeholder="1" />
           </div>
         </div>
         <button @click="saveModalItem" :disabled="!(isValidModalItem)"
@@ -212,7 +250,7 @@
         </div>
 
         <input v-model="people[selectedPersonIndex].name" type="text"
-          class="p-3 border rounded-lg focus:outline-blue-200 w-full" placeholder="Enter name" />
+          class="bg-white dark:bg-white p-3 border rounded-lg focus:outline-blue-200 w-full text-gray-900" placeholder="Enter name" />
         <div class="my-4 border-t border-dashed"></div>
 
         <div class="flex flex-col gap-4 overflow-y-auto">
@@ -242,20 +280,22 @@
 
         <div class="mt-6 pt-4 border-t">
           <div class="flex justify-between items-center mb-4">
-            <span class="text-gray-500">Subtotal:</span>
-            <span class="font-bold">{{ formatPrice(getPersonSubtotal(selectedPersonIndex)) }}</span>
+            <span class="text-gray-500 dark:text-gray-400">Subtotal:</span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ formatPrice(getPersonSubtotal(selectedPersonIndex, personItems)) }}</span>
           </div>
           <div v-if="serviceTaxIncluded" class="flex justify-between items-center mb-4">
-            <span class="text-gray-500">Service Tax ({{ numberOfPeople }} people):</span>
-            <span>{{ formatPrice(serviceTaxInput / numberOfPeople) }}</span>
+            <span class="text-gray-500 dark:text-gray-400">Service Tax ({{ numberOfPeople }} people):</span>
+            <span class="text-gray-900 dark:text-white">{{ formatPrice(getPersonTotal(selectedPersonIndex, personItems) -
+              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded.value ? deliveryFeeInput.value
+                / numberOfPeople.value : 0)) }}</span>
           </div>
           <div v-if="deliveryFeeIncluded" class="flex justify-between items-center mb-4">
-            <span class="text-gray-500">Delivery Fee ({{ numberOfPeople }} people):</span>
-            <span>{{ formatPrice(deliveryFeeInput / numberOfPeople) }}</span>
+            <span class="text-gray-500 dark:text-gray-400">Delivery Fee ({{ numberOfPeople }} people):</span>
+            <span class="text-gray-900 dark:text-white">{{ formatPrice(deliveryFeeInput / numberOfPeople) }}</span>
           </div>
           <div class="flex justify-between items-center font-bold text-lg">
-            <span>Total:</span>
-            <span>{{ formatPrice(getPersonTotal(selectedPersonIndex)) }}</span>
+            <span class="text-gray-900 dark:text-white">Total:</span>
+            <span class="text-gray-900 dark:text-white">{{ formatPrice(getPersonTotal(selectedPersonIndex, personItems)) }}</span>
           </div>
         </div>
 
@@ -279,7 +319,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useState, computed, watch } from '#imports';
+import { ref, computed, watch } from 'vue';
+import { useBillCalculations } from '~/composables/useBillCalculations';
 
 interface BillItem {
   name: string;
@@ -299,21 +340,118 @@ interface Person {
   paid: boolean;
 }
 
-const items = useState<BillItem[]>('items', () => []);
-const newItem = useState<NewItem>('newItem', () => ({ name: '', price: '', quantity: 1 }));
-const serviceTaxInput = useState<number>('serviceTax', () => 0);
-const deliveryFeeInput = useState<number>('deliveryFee', () => 0);
-const serviceTaxIncluded = ref(false);
-const deliveryFeeIncluded = ref(false);
-
-// People counter and bill splitting
-const numberOfPeople = ref(1);
-const splitEqually = ref(true);
-const people = ref<Person[]>([{ items: [], name: '', paid: false }]);
+// Use composable for shared calculations
+const {
+  items,
+  serviceTaxInput,
+  deliveryFeeInput,
+  numberOfPeople,
+  splitEqually,
+  people,
+  serviceTaxType,
+  serviceTaxIncluded,
+  deliveryFeeIncluded,
+  formatPrice,
+  grandTotal,
+  getRoundedAmount,
+  getRoundingAmount,
+  getPersonSubtotal,
+  getPersonTotal
+} = useBillCalculations();
 
 // Modal state for add item
 const showAddModal = ref(false);
 const modalItem = ref({ name: '', price: '', quantity: 1 });
+
+// Person items modal
+const showPersonModal = ref(false);
+const selectedPersonIndex = ref(0);
+const personItems = ref<Record<number, Record<string, { selected: boolean; quantity: number }>>>({});
+
+// Initialize personItems
+watch(numberOfPeople, (newValue) => {
+  for (let i = 0; i < newValue; i++) {
+    if (!personItems.value[i]) {
+      personItems.value[i] = {};
+      items.value.forEach(item => {
+        personItems.value[i][item.name] = { selected: people.value[i]?.items.includes(item.name) || false, quantity: 1 };
+      });
+    }
+  }
+  Object.keys(personItems.value).forEach(key => {
+    if (parseInt(key) >= newValue) {
+      delete personItems.value[parseInt(key)];
+    }
+  });
+});
+
+watch(items, (newItems) => {
+  Object.keys(personItems.value).forEach(personIndex => {
+    newItems.forEach(item => {
+      if (!personItems.value[parseInt(personIndex)][item.name]) {
+        personItems.value[parseInt(personIndex)][item.name] = { selected: people.value[parseInt(personIndex)]?.items.includes(item.name) || false, quantity: 1 };
+      }
+    });
+    Object.keys(personItems.value[parseInt(personIndex)]).forEach(itemName => {
+      if (!newItems.find(item => item.name === itemName)) {
+        delete personItems.value[parseInt(personIndex)][itemName];
+      }
+    });
+  });
+}, { deep: true });
+
+const openPersonModal = (index: number) => {
+  selectedPersonIndex.value = index;
+  if (!personItems.value[index]) {
+    personItems.value[index] = {};
+    items.value.forEach(item => {
+      personItems.value[index][item.name] = { selected: people.value[index].items.includes(item.name), quantity: 1 };
+    });
+  }
+  showPersonModal.value = true;
+};
+
+const closePersonModal = () => {
+  showPersonModal.value = false;
+};
+
+const savePersonItems = () => {
+  const selectedItems = Object.entries(personItems.value[selectedPersonIndex.value])
+    .filter(([_, selection]) => selection.selected)
+    .map(([itemName]) => itemName);
+  people.value[selectedPersonIndex.value].items = selectedItems;
+  closePersonModal();
+};
+
+const isItemFullySelected = (itemName: string, currentPersonIndex: number): boolean => {
+  const item = items.value.find(i => i.name === itemName);
+  if (!item) return false;
+  const totalSelected = Object.entries(personItems.value).reduce((sum, [personIndex, items]) => {
+    const index = parseInt(personIndex);
+    if (index === currentPersonIndex) return sum;
+    return sum + (items[itemName]?.selected ? (items[itemName]?.quantity || 0) : 0);
+  }, 0);
+  return totalSelected >= item.quantity;
+};
+
+const getAvailableQuantity = (itemName: string, currentPersonIndex: number): number[] => {
+  const item = items.value.find(i => i.name === itemName);
+  if (!item) return [];
+  const totalSelected = Object.entries(personItems.value).reduce((sum, [personIndex, items]) => {
+    const index = parseInt(personIndex);
+    if (index === currentPersonIndex) return sum;
+    return sum + (items[itemName]?.selected ? (items[itemName]?.quantity || 0) : 0);
+  }, 0);
+  const available = item.quantity - totalSelected;
+  return Array.from({ length: available }, (_, i) => i + 1);
+};
+
+const markAsPaid = (index: number) => {
+  people.value[index].paid = !people.value[index].paid;
+};
+
+// Add item modal logic
+const newItem = ref<NewItem>({ name: '', price: '', quantity: 1 });
 
 const isValidItem = computed(() => {
   return newItem.value.name.trim() !== '' && parseFloat(newItem.value.price) > 0 && newItem.value.quantity > 0;
@@ -323,16 +461,8 @@ const isValidModalItem = computed(() => {
   return modalItem.value.name.trim() !== '' && parseFloat(modalItem.value.price) > 0 && modalItem.value.quantity > 0;
 });
 
-const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('en-MY', {
-    style: 'currency',
-    currency: 'MYR',
-    minimumFractionDigits: 2
-  }).format(price);
-};
-
 const addItem = () => {
-  if (!(newItem.value.name.trim() !== '' && parseFloat(newItem.value.price) > 0 && newItem.value.quantity > 0)) return;
+  if (!isValidItem.value) return;
   items.value.push({
     name: newItem.value.name.trim(),
     price: parseFloat(newItem.value.price),
@@ -345,20 +475,17 @@ const removeItem = (index: number) => {
   items.value.splice(index, 1);
 };
 
-const grandTotal = computed(() => {
-  const itemsTotal = items.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  return itemsTotal + (serviceTaxInput.value || 0) + (deliveryFeeInput.value || 0);
-});
-
 const openAddModal = () => {
   modalItem.value = { name: '', price: '', quantity: 1 };
   showAddModal.value = true;
 };
+
 const closeAddModal = () => {
   showAddModal.value = false;
 };
+
 const saveModalItem = () => {
-  if (modalItem.value.name.trim() && parseFloat(modalItem.value.price) > 0 && modalItem.value.quantity > 0) {
+  if (isValidModalItem.value) {
     items.value.push({
       name: modalItem.value.name.trim(),
       price: parseFloat(modalItem.value.price),
@@ -380,19 +507,7 @@ const decrementPeople = () => {
   }
 };
 
-const removePerson = (index: number) => {
-  if (numberOfPeople.value > 1) {
-    numberOfPeople.value--;
-    people.value.splice(index, 1);
-  }
-};
-
-const isPersonComplete = (index: number) => {
-  const person = people.value[index];
-  return person.items.length > 0;
-};
-
-watch(serviceTaxInput, (val, oldVal) => {
+watch(serviceTaxInput, (val) => {
   if (typeof val === 'number') {
     serviceTaxInput.value = Number(val.toFixed(2));
   }
@@ -409,162 +524,6 @@ watch(deliveryFeeIncluded, (val) => {
     deliveryFeeInput.value = 0;
   }
 });
-
-// Person items modal
-const showPersonModal = ref(false);
-const selectedPersonIndex = ref(0);
-const personItems = ref<Record<number, Record<string, { selected: boolean; quantity: number }>>>({});
-
-// Initialize personItems when numberOfPeople changes
-watch(numberOfPeople, (newValue) => {
-  // Initialize personItems for new people
-  for (let i = 0; i < newValue; i++) {
-    if (!personItems.value[i]) {
-      personItems.value[i] = {};
-      items.value.forEach(item => {
-        personItems.value[i][item.name] = { selected: false, quantity: 1 };
-      });
-    }
-  }
-  // Remove personItems for removed people
-  Object.keys(personItems.value).forEach(key => {
-    if (parseInt(key) >= newValue) {
-      delete personItems.value[parseInt(key)];
-    }
-  });
-});
-
-// Initialize personItems when items change
-watch(items, (newItems) => {
-  Object.keys(personItems.value).forEach(personIndex => {
-    newItems.forEach(item => {
-      if (!personItems.value[parseInt(personIndex)][item.name]) {
-        personItems.value[parseInt(personIndex)][item.name] = { selected: false, quantity: 1 };
-      }
-    });
-    // Remove items that no longer exist
-    Object.keys(personItems.value[parseInt(personIndex)]).forEach(itemName => {
-      if (!newItems.find(item => item.name === itemName)) {
-        delete personItems.value[parseInt(personIndex)][itemName];
-      }
-    });
-  });
-}, { deep: true });
-
-const openPersonModal = (index: number) => {
-  selectedPersonIndex.value = index;
-  showPersonModal.value = true;
-};
-
-const closePersonModal = () => {
-  showPersonModal.value = false;
-};
-
-const getPersonSubtotal = (index: number) => {
-  const personItemSelections = personItems.value[index] || {};
-  return Object.entries(personItemSelections).reduce((sum, [itemName, selection]) => {
-    if (selection.selected) {
-      const item = items.value.find(i => i.name === itemName);
-      if (item) {
-        return sum + (item.price * selection.quantity);
-      }
-    }
-    return sum;
-  }, 0);
-};
-
-const getRoundedAmount = (amount: number): number => {
-  return Math.ceil(amount / 0.05) * 0.05;
-};
-
-const getRoundingAmount = (amount: number): number => {
-  return getRoundedAmount(amount) - amount;
-};
-
-const getPersonTotal = (index: number) => {
-  const subtotal = getPersonSubtotal(index);
-  const serviceTaxShare = serviceTaxIncluded.value ? serviceTaxInput.value / numberOfPeople.value : 0;
-  const deliveryFeeShare = deliveryFeeIncluded.value ? deliveryFeeInput.value / numberOfPeople.value : 0;
-  return getRoundedAmount(subtotal + serviceTaxShare + deliveryFeeShare);
-};
-
-const savePersonItems = () => {
-  // Update the person's items in the people array
-  const selectedItems = Object.entries(personItems.value[selectedPersonIndex.value])
-    .filter(([_, selection]) => selection.selected)
-    .map(([itemName]) => itemName);
-
-  people.value[selectedPersonIndex.value].items = selectedItems;
-  closePersonModal();
-};
-
-// Name modal state
-const showNameModal = ref(false);
-const nameInput = ref('');
-const selectedNameIndex = ref(0);
-
-const openNameModal = (index: number) => {
-  selectedNameIndex.value = index;
-  nameInput.value = people.value[index].name;
-  showNameModal.value = true;
-};
-
-const closeNameModal = () => {
-  showNameModal.value = false;
-};
-
-const saveName = () => {
-  if (nameInput.value.trim()) {
-    people.value[selectedNameIndex.value].name = nameInput.value.trim();
-    closeNameModal();
-  }
-};
-
-const isItemFullySelected = (itemName: string, currentPersonIndex: number): boolean => {
-  const item = items.value.find(i => i.name === itemName);
-  if (!item) return false;
-
-  // Get total quantity selected by others
-  const totalSelected = Object.entries(personItems.value).reduce((sum, [personIndex, items]) => {
-    const index = parseInt(personIndex);
-    if (index === currentPersonIndex) return sum;
-    // Only count if the item is actually selected
-    return sum + (items[itemName]?.selected ? (items[itemName]?.quantity || 0) : 0);
-  }, 0);
-
-  return totalSelected >= item.quantity;
-};
-
-const getAvailableQuantity = (itemName: string, currentPersonIndex: number): number[] => {
-  const item = items.value.find(i => i.name === itemName);
-  if (!item) return [];
-
-  // Get total quantity selected by others
-  const totalSelected = Object.entries(personItems.value).reduce((sum, [personIndex, items]) => {
-    const index = parseInt(personIndex);
-    if (index === currentPersonIndex) return sum;
-    // Only count if the item is actually selected
-    return sum + (items[itemName]?.selected ? (items[itemName]?.quantity || 0) : 0);
-  }, 0);
-
-  const available = item.quantity - totalSelected;
-  return Array.from({ length: available }, (_, i) => i + 1);
-};
-
-const getPersonDisplayName = (index: number): string => {
-  return people.value[index].name || `Person ${index + 1}`;
-};
-
-const markAsPaid = (index: number) => {
-  people.value[index].paid = !people.value[index].paid;
-};
-
-const getPersonButtonClass = (index: number) => {
-  return [
-    'hover:bg-gray-50 dark:hover:bg-gray-800 p-4 border rounded-lg text-center',
-    people.value[index].paid ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''
-  ].join(' ');
-};
 </script>
 
 <style scoped>

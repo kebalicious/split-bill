@@ -22,6 +22,7 @@
   "splitBillTitle": "Choose how you would like to split the bill",
   "numberOfPeople": "No. of people",
   "splitEqually": "Split bill equally?",
+  "splitEquallyTooltip": "Your bill will be split equally to how many people are in the same bill. eg. RM500 divided equally by 4 for 4 persons.",
   "eachPersonPays": "Each person pays:",
   "roundedBy": "Rounded by",
   "person": "Person",
