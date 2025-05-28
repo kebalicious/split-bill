@@ -358,8 +358,8 @@
             <span class="text-gray-500 dark:text-gray-400">Service Tax ({{ numberOfPeople }} people):</span>
             <span class="text-gray-900 dark:text-white">{{ formatPrice(getPersonTotal(selectedPersonIndex, personItems)
               -
-              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded.value ? deliveryFeeInput.value
-                / numberOfPeople.value : 0)) }}</span>
+              getPersonSubtotal(selectedPersonIndex, personItems) - (deliveryFeeIncluded ? deliveryFeeInput
+                / numberOfPeople : 0)) }}</span>
           </div>
           <div v-if="deliveryFeeIncluded" class="flex justify-between items-center mb-4">
             <span class="text-gray-500 dark:text-gray-400">Delivery Fee ({{ numberOfPeople }} people):</span>
@@ -425,9 +425,23 @@
 import { ref, computed, watch } from 'vue';
 import { useBillCalculations } from '~/composables/useBillCalculations';
 import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { saveAs } from 'file-saver';
 import { useI18n } from 'vue-i18n';
+import type { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+// Dynamic imports for pdfMake
+let pdfMake: any;
+let pdfFonts: any;
+
+if (process.client) {
+  import('pdfmake/build/pdfmake').then((module) => {
+    pdfMake = module.default;
+    return import('pdfmake/build/vfs_fonts');
+  }).then((module) => {
+    pdfFonts = module.default;
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+  });
+}
 
 interface Item {
   name: string
@@ -838,22 +852,94 @@ const saveAsPNG = async (personIndex: number) => {
 };
 
 const saveAsPDF = async (personIndex: number) => {
-  const content = generateReceiptContent(personIndex);
-  const html = generateReceiptHTML(content);
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = html;
-  document.body.appendChild(tempDiv);
-  
   try {
-    const canvas = await html2canvas(tempDiv);
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`receipt-${content.personName}.pdf`);
-  } finally {
-    document.body.removeChild(tempDiv);
+    if (!pdfMake) {
+      const pdfMakeModule = await import('pdfmake/build/pdfmake');
+      pdfMake = pdfMakeModule.default;
+      const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
+      pdfFonts = pdfFontsModule.default;
+      pdfMake.vfs = pdfFonts.pdfMake.vfs;
+    }
+
+    const content = generateReceiptContent(personIndex);
+    
+    const docDefinition: TDocumentDefinitions = {
+      content: [
+        { text: 'Receipt', style: 'header' },
+        { text: content.date, style: 'subheader' },
+        { text: content.personName, style: 'subheader' },
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', 'auto'],
+            body: [
+              [
+                { text: 'Item', style: 'tableHeader' },
+                { text: 'Amount', style: 'tableHeader' }
+              ],
+              ...content.items.map(item => [
+                { text: `${item.name} x${item.quantity}` },
+                { text: formatPrice(item.total), alignment: 'right' as const }
+              ]),
+              [
+                { text: 'Subtotal:', style: 'tableHeader' },
+                { text: formatPrice(content.subtotal), alignment: 'right' as const }
+              ],
+              ...(content.serviceTax > 0 ? [[
+                { text: 'Service Tax:', style: 'tableHeader' },
+                { text: formatPrice(content.serviceTax), alignment: 'right' as const }
+              ]] : []),
+              ...(content.deliveryFee > 0 ? [[
+                { text: 'Delivery Fee:', style: 'tableHeader' },
+                { text: formatPrice(content.deliveryFee), alignment: 'right' as const }
+              ]] : []),
+              [
+                { text: 'Total:', style: 'totalHeader' },
+                { text: formatPrice(content.total), style: 'totalAmount', alignment: 'right' as const }
+              ]
+            ]
+          }
+        }
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          margin: [0, 0, 0, 10] as [number, number, number, number],
+          alignment: 'center' as const
+        },
+        subheader: {
+          fontSize: 14,
+          bold: true,
+          margin: [0, 10, 0, 5] as [number, number, number, number],
+          alignment: 'left' as const
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 12,
+          color: 'black',
+          margin: [0, 5, 0, 5] as [number, number, number, number],
+          alignment: 'left' as const
+        },
+        totalHeader: {
+          bold: true,
+          fontSize: 14,
+          margin: [0, 10, 0, 5] as [number, number, number, number]
+        },
+        totalAmount: {
+          bold: true,
+          fontSize: 14,
+          margin: [0, 10, 0, 5] as [number, number, number, number]
+        }
+      }
+    };
+
+    const pdfDoc = pdfMake.createPdf(docDefinition);
+    pdfDoc.getBlob((blob: Blob) => {
+      saveAs(blob, `receipt-${content.personName}.pdf`);
+    });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
   }
 };
 
