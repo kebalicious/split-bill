@@ -50,7 +50,7 @@
         </div>
 
         <input v-model="people[selectedPersonIndex].name" type="text"
-          class="p-3 border rounded-lg focus:outline-blue-200 w-full" placeholder="Enter name" />
+          class="p-3 border rounded-lg focus:outline-blue-200 w-full text-gray-900" placeholder="Enter name" />
         <div class="my-4 border-t border-dashed"></div>
 
         <div class="flex flex-col gap-4 overflow-y-auto">

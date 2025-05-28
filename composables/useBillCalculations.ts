@@ -2,10 +2,11 @@
 import { computed } from 'vue';
 import { useState } from '#imports';
 
-interface BillItem {
+interface Item {
   name: string;
   price: number;
   quantity: number;
+  people: string[];
 }
 
 interface Person {
@@ -16,7 +17,7 @@ interface Person {
 
 export function useBillCalculations() {
   // Shared state
-  const items = useState<BillItem[]>('items', () => []);
+  const items = useState<Item[]>('items', () => []);
   const serviceTaxInput = useState<number>('serviceTax', () => 0);
   const deliveryFeeInput = useState<number>('deliveryFee', () => 0);
   const numberOfPeople = useState<number>('numberOfPeople', () => 1);
